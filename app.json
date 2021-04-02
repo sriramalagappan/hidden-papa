@@ -4,11 +4,11 @@
     "slug": "hidden-papa",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/HPIcon.png",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/Background.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ce4760"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

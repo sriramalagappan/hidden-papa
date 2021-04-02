@@ -1,4 +1,5 @@
-import { StyleSheet, Dimensions, Button } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+import colors from '../../theme/colors';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -6,8 +7,13 @@ const height = Dimensions.get('window').height;
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
+        backgroundColor: colors.primary,
     },
+    margin: {
+        marginBottom: height*.055,
+    },
+    smallButtonContainer: {
+        flex: 1,
+        flexDirection: 'row',
+    }
 })

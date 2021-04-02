@@ -4,4 +4,5 @@ export default {
     yellow: '#ffb563',
     brown: '#34252f',
     teal: '#084c61',
+    primary_light: '#e3a3af',
 }

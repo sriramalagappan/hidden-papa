@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, ImageBackground } from 'react-native';
 import styles from './styles';
-import TextStyles from '../../theme/text-styles';
-import { ButtonStyles } from '../../theme/component-styles';
-import { Button } from 'react-native-paper'
-import { init, login, setEnWords } from '../../api/firebaseMethods';
+import { ImageStyles } from '../../theme/component-styles';
+import Button from '../../components/Button'
+
+const image = require('../../assets/HiddenPapaIntro.png')
+const backgroundImage = require('../../assets/Background.png')
 
 const IntroPage = (props) => {
 
@@ -14,15 +15,12 @@ const IntroPage = (props) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={TextStyles.title}>Hidden Papa</Text>
-            </View>
-
-            <View style={styles.buttonContainer}>
-                <Button style={ButtonStyles.mainButton} mode="contained" onPress={startHandler}>
-                    Start
-                </Button>
-            </View>
+            <ImageBackground source={backgroundImage} style={{ width: 0, height: 0 }} />
+            <ImageBackground source={image} style={ImageStyles.background}>
+                <View style={styles.buttonContainer}>
+                    <Button onPress={startHandler}>Start</Button>
+                </View>
+            </ImageBackground>
         </View>
     );
 };

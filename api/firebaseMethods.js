@@ -1,7 +1,7 @@
 import firebase from "firebase";
 import { Alert } from "react-native";
 import firebaseConfigKorea from '../secrets/keys';
-import ENwords from '../data/en-words';
+// import ENwords from '../data/en-words';
 
 export const init = () => {
     // only initialize if necessary
@@ -22,18 +22,18 @@ export const login = async () => {
     }
 }
 
-export const setEnWords = async () => {
-    try {
-        const db = firebase.firestore();
-        db.collection("en-words")
-            .doc()
-            .set({
-                ENwords,
-            });
-    } catch (err) {
-        Alert.alert("Sorry, something went wrong. Please try again", err.message);
-    }
-}
+// export const setEnWords = async () => {
+//     try {
+//         const db = firebase.firestore();
+//         db.collection("en-words")
+//             .doc()
+//             .set({
+//                 ENwords,
+//             });
+//     } catch (err) {
+//         Alert.alert("Sorry, something went wrong. Please try again", err.message);
+//     }
+// }
 
 export const logout = async () => {
     try {
