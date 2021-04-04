@@ -1,13 +1,29 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, ImageBackground } from 'react-native';
 import styles from './styles';
 import { ImageStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
+import * as avatarActions from '../../store/actions/avatar';
+import { useDispatch } from 'react-redux'
+
 
 const image = require('../../assets/HiddenPapaIntro.png')
 const backgroundImage = require('../../assets/Background.png')
 
 const IntroPage = (props) => {
+
+    // store dispatch function in variable to use elsewhere
+    const dispatch = useDispatch()
+
+    // componentDidMount
+    useEffect(() => {
+        // load avatar now to help transition to next screen
+        const checkAvatar = async () => {
+            await avatarActions.checkAvatar();
+            await dispatch(avatarActions.getAvatar());
+        };
+        checkAvatar();
+    }, [])
 
     const startHandler = () => {
         props.navigation.navigate('Home');

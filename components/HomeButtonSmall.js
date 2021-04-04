@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TouchableNativeFeedback, Platform, Dimensions } from 'react-native';
 import colors from '../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { BigHead } from 'react-native-bigheads'
 
 const HomeButton = (props) => {
 
@@ -17,32 +16,7 @@ const HomeButton = (props) => {
             <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={props.onPress}>
                 <View style={styles.button}>
                     <View style={styles.icon}>
-                        {/*if icon prop is given, render icon provided. Otherwise, render avatar*/}
-                        {(props.icon) ?
-                            (<Ionicons name={props.icon} size={50} color="black" />)
-                            : (<BigHead
-                                accessory="shades"
-                                bgColor="blue"
-                                bgShape="circle"
-                                body="chest"
-                                clothing="tankTop"
-                                clothingColor="black"
-                                eyebrows="angry"
-                                eyes="wink"
-                                facialHair="mediumBeard"
-                                graphic="vue"
-                                hair="long"
-                                hairColor="black"
-                                hat="none"
-                                hatColor="green"
-                                lashes={false}
-                                lipColor="purple"
-                                mouth="open"
-                                showBackground={false}
-                                size={height * .2}
-                                skinTone="brown"
-                            />)
-                        }
+                        <Ionicons name={props.icon} size={50} color="black" />
                     </View>
                     <View style={styles.textContainer}>
                         <Text style={styles.text}>{props.text}</Text>

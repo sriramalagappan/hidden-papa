@@ -14,6 +14,16 @@ import React, { useState } from 'react';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
 import MainNavigator from './navigation/MainNavigator';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import ReduxThunk from 'redux-thunk'
+import avatarReducer from './store/reducers/avatar';
+
+const rootReducer = combineReducers({
+  avatar: avatarReducer,
+})
+
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk))
 
 // fetch fonts from the assets folder
 const fetchFonts = () => {
@@ -41,6 +51,8 @@ export default function App() {
     );
   }
   return (
-    <MainNavigator />
+    <Provider store={store}>
+      <MainNavigator />
+    </Provider>
   )
 }
