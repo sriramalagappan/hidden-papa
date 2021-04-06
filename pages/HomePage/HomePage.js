@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, ImageBackground } from 'react-native';
+import React, { useEffect, useCallback, useState } from 'react';
+import { View, ImageBackground, InteractionManager } from 'react-native';
 import styles from './styles';
 import HomeButtonLarge from '../../components/HomeButtonLarge'
 import HomeButtonSmall from '../../components/HomeButtonSmall'
@@ -7,6 +7,7 @@ import HomeButtonAvatar from '../../components/HomeButtonAvatar'
 import { ImageStyles } from '../../theme/component-styles';
 import * as avatarActions from '../../store/actions/avatar';
 import { useDispatch, useSelector } from 'react-redux'
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const image = require('../../assets/Background.png')
@@ -16,23 +17,41 @@ const HomePage = (props) => {
     // Redux Store State Variable
     const avatar = useSelector(state => state.avatar.avatar);
 
+    // Stateful Variables
+    const [avatarCopy, setAvatarCopy] = useState({}) // used for performance
+    const [isLoading, setIsLoading] = useState(true)
+
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
 
     // componentDidMount
-    useEffect(() => {
-        const getAvatar = async () => {
-            await dispatch(avatarActions.getAvatar());
-        }
-        // only fetch is it hasn't loaded already
-        if (!avatar) {
-            getAvatar();
-        }
-    }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            const getAvatar = async () => {
+                await dispatch(avatarActions.getAvatar());
+            }
 
-    // const AvatarButtonHandler = () => {
-    //     props.navigation.naviate()
-    // }
+            InteractionManager.runAfterInteractions(() => {
+                getAvatar()
+                setIsLoading(false)
+            });
+
+            return () => {
+                setIsLoading(true)
+            };
+        }, [])
+    );
+
+    // update avatar whenever changed after done loading
+    useEffect(() => {
+        if (!isLoading) {
+            setAvatarCopy(avatar)
+        }
+    }, [avatar, isLoading])
+
+    const AvatarButtonHandler = () => {
+        props.navigation.navigate('Avatar');
+    }
 
     return (
         <View style={styles.container}>
@@ -41,7 +60,7 @@ const HomePage = (props) => {
                 <HomeButtonLarge text={"Create a Room"} icon={"create-outline"} onPress={() => { console.log('hi') }} />
                 <HomeButtonLarge text={"Join a Room"} icon={"add-outline"} />
                 <View style={styles.smallButtonContainer}>
-                    <HomeButtonAvatar avatar={avatar} />
+                    <HomeButtonAvatar avatar={avatarCopy} onPress={AvatarButtonHandler} />
                     <HomeButtonSmall text={"About"} icon={"information-circle-outline"} />
                 </View>
             </ImageBackground>

@@ -45,6 +45,16 @@ export const getAvatar = () => {
     }
 }
 
+export const saveAvatar = (newAvatar) => {
+    return async dispatch => {
+        await saveAvatarToStorage(newAvatar);
+        dispatch({
+            type: GET_AVATAR,
+            newAvatar,
+        })
+    }
+}
+
 // function to save avatar to device locally
 const saveAvatarToStorage = (avatar) => {
     // store avatar information
@@ -71,7 +81,7 @@ const removeAvatarFromStorage = () => {
 }
 
 // function to retrieve avatar from device locally
-const getAvatarFromStorage = async () => {
+export const getAvatarFromStorage = async () => {
     // retrieve avatar (returns null if it doesn't exist)
     try {
         const result = await AsyncStorage.getItem('hp-avatar');

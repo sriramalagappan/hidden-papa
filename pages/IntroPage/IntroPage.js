@@ -17,10 +17,9 @@ const IntroPage = (props) => {
 
     // componentDidMount
     useEffect(() => {
-        // load avatar now to help transition to next screen
         const checkAvatar = async () => {
             await avatarActions.checkAvatar();
-            await dispatch(avatarActions.getAvatar());
+            // await dispatch(avatarActions.getAvatar());
         };
         checkAvatar();
     }, [])

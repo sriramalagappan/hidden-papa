@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TouchableNativeFeedback, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TouchableNativeFeedback, Platform, Dimensions, ActivityIndicator } from 'react-native';
 import colors from '../theme/colors';
-import { BigHead } from 'react-native-bigheads'
+import BigHeadComponent from './BigHead';
+
 
 const HomeButton = (props) => {
 
@@ -18,29 +19,16 @@ const HomeButton = (props) => {
                     <View style={styles.icon}>
                         {
                             (props.avatar) ?
-                                (<BigHead
-                                    accessory={props.avatar.accessory}
-                                    bgColor={colors.primary}
-                                    bgShape="square"
-                                    body={props.avatar.body}
-                                    clothing={props.avatar.clothing}
-                                    clothingColor={props.avatar.clothingColor}
-                                    eyebrows={props.avatar.eyebrows}
-                                    eyes={props.avatar.eyes}
-                                    facialHair={props.avatar.facialHair}
-                                    graphic={props.avatar.graphic}
-                                    hair={props.avatar.hair}
-                                    hairColor={props.avatar.hairColor}
-                                    hat={props.avatar.hat}
-                                    hatColor={props.avatar.hatColor}
-                                    lashes={props.avatar.lashes}
-                                    lipColor={props.avatar.lipColor}
-                                    mouth={props.avatar.mouth}
-                                    showBackground={true}
-                                    size={175}
-                                    skinTone={props.avatar.skinTone}
-                                />)
-                                : (<View />)
+                                (
+                                    <View style={styles.bigHeadContainer}>
+                                        <BigHeadComponent avatar={props.avatar} size={150} />
+                                    </View>
+                                )
+                                : (
+                                    <View style={styles.loadingContainer}>
+                                        <ActivityIndicator color={'black'} size={50} />
+                                    </View>
+                                )
                         }
                     </View>
                     <View style={styles.textContainer}>
@@ -77,7 +65,13 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 20,
         fontFamily: 'regular'
-    }
+    },
+    loadingContainer: {
+        marginTop: height * .04,
+    },
+    bigHeadContainer: {
+        marginTop: height * .01,
+    },
 })
 
 export default HomeButton;

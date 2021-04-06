@@ -19,6 +19,12 @@ const ImageStyles = StyleSheet.create({
         justifyContent: 'center',
         width: width,
         alignItems: 'center',
+    },
+    backgroundNoJustify: {
+        flex: 1,
+        resizeMode: 'cover',
+        width: width,
+        alignItems: 'center',
     }
 })
 

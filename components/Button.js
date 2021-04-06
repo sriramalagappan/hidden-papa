@@ -10,8 +10,10 @@ const Button = props => {
         TouchableCmp = TouchableNativeFeedback
     }
 
+    const buttonContainerStyle = (props.border) ? styles.containerBorder : styles.container
+
     return (
-        <View style={styles.container}>
+        <View style={buttonContainerStyle}>
             <TouchableCmp style={(Platform.OS === 'android') ? {flex:1} : null} onPress={props.onPress}>
                 <View style={{ ...styles.button, ...props.style }}>
                     <Text style={{ ...styles.text, ...props.textStyle}}>
@@ -40,6 +42,15 @@ const styles = StyleSheet.create({
         overflow: (Platform.OS === 'android' && Platform.Version >= 21) ? 'hidden' : 'visible',
         marginVertical: 25,
         marginHorizontal: 10,
+    },
+
+    containerBorder: {
+        borderRadius: 5,
+        overflow: (Platform.OS === 'android' && Platform.Version >= 21) ? 'hidden' : 'visible',
+        marginVertical: 25,
+        marginHorizontal: 10,
+        borderColor: 'black',
+        borderWidth: 1,
     },
 
     text: {
