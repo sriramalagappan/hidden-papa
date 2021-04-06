@@ -22,6 +22,32 @@ export const login = async () => {
     }
 }
 
+export const createRoom = async (roomCode) => {
+    try {
+        const db = firebase.firestore();
+        db.collection("rooms")
+            .doc(roomCode)
+            .set({
+                test: "test"
+            })
+    } catch (err) {
+        const errorMessage = err.message;
+        Alert.alert("Sorry, something went wrong. Please try again", errorMessage);   
+    }
+}
+
+export const isCodeUnique = async (code) => {
+    try {
+        const db = firebase.firestore();
+        const snapshot = await db.collection("rooms").get()
+        const rooms = snapshot.docs.map(doc => doc.id)
+        return (rooms.indexOf(code) === -1)
+    } catch (err) {
+        const errorMessage = err.message;
+        Alert.alert("Sorry, something went wrong. Please try again", errorMessage);   
+    }
+}
+
 // export const setEnWords = async () => {
 //     try {
 //         const db = firebase.firestore();

@@ -19,13 +19,6 @@ export default StyleSheet.create({
         backgroundColor: colors.primary_light,
         borderRadius: 30,
     },
-    primaryDropdown: {
-        backgroundColor: colors.primary_light, 
-        borderColor: 'black',
-        borderRightWidth: 0,
-        borderTopWidth: 0,
-        borderLeftWidth: 0,
-    },
     dropdownContainer: {
         marginTop: height * .03,
         flexDirection: 'row',
@@ -33,35 +26,12 @@ export default StyleSheet.create({
         width: '100%',
         height: height * .35
     },
-    dropdownItem: {
-        justifyContent: 'flex-start',
-    },
-    dropdownItemContainer: {
-        justifyContent: 'flex-start',
-        backgroundColor: '#fafafa', 
-        borderColor: '#fafafa',
-    },
-    dropdownCategoryTitle: {
-        fontFamily: 'bold',
-        color: 'black',
-    },
-    dropdownItemText: {
-        fontFamily: 'regular',        
-        color: 'black',
-    },
     dropdownStyle: {
         height: height * .06,
         width: '45%',
-    },
-    dropdownSelectedText: {
-        fontFamily: 'regular',
-        color: 'black',
     },
     buttonContainer: {
         marginTop: height * .005,
         alignItems: 'center'
     },
-    dropdownSelectedItem: {
-        color: colors.primary,
-    }
 })

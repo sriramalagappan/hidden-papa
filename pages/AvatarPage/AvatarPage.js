@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useReducer } from 'react';
 import { View, ImageBackground, Dimensions, InteractionManager } from 'react-native';
 import styles from './styles';
-import { ImageStyles } from '../../theme/component-styles';
+import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import * as avatarActions from '../../store/actions/avatar';
 import { useDispatch, useSelector } from 'react-redux'
 import BigHead from '../../components/BigHead';
@@ -9,7 +9,6 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Button from '../../components/Button'
 import colors from '../../theme/colors'
 import { useFocusEffect } from '@react-navigation/native';
-
 
 const height = Dimensions.get('window').height;
 
@@ -24,7 +23,7 @@ const AvatarPage = (props) => {
     const [tempAvatar, setTempAvatar] = useState({})
     const [category, setCategory] = useState()
     const [traitItems, setTraitItems] = useState([
-        { label: 'Select a trait', value: 'temp', untouchable: true, textStyle: styles.dropdownCategoryTitle },
+        { label: 'Select a trait', value: 'temp', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle },
     ])
     const [defaultTrait, setDefaultTrait] = useState('temp')
 
@@ -58,153 +57,153 @@ const AvatarPage = (props) => {
             switch (category) {
                 case 'accessory': {
                     setTraitItems([
-                        { label: 'None', value: 'none', textStyle: styles.dropdownItemText },
-                        { label: 'Round Glasses', value: 'roundGlasses', textStyle: styles.dropdownItemText },
-                        { label: 'Tiny Glasses', value: 'tinyGlasses', textStyle: styles.dropdownItemText },
-                        { label: 'Shades', value: 'shades', textStyle: styles.dropdownItemText },
-                        { label: 'Face Mask', value: 'faceMask', textStyle: styles.dropdownItemText },
-                        { label: 'Hoop Earrings', value: 'hoopEarrings', textStyle: styles.dropdownItemText },
+                        { label: 'None', value: 'none', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Round Glasses', value: 'roundGlasses', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Tiny Glasses', value: 'tinyGlasses', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Shades', value: 'shades', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Face Mask', value: 'faceMask', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Hoop Earrings', value: 'hoopEarrings', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'eyebrows': {
                     setTraitItems([
-                        { label: 'Raised', value: 'raised', textStyle: styles.dropdownItemText },
-                        { label: 'Left Lowered', value: 'leftLowered', textStyle: styles.dropdownItemText },
-                        { label: 'Serious', value: 'serious', textStyle: styles.dropdownItemText },
-                        { label: 'Angry', value: 'angry', textStyle: styles.dropdownItemText },
-                        { label: 'Concerned', value: 'concerned', textStyle: styles.dropdownItemText },
+                        { label: 'Raised', value: 'raised', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Left Lowered', value: 'leftLowered', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Serious', value: 'serious', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Angry', value: 'angry', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Concerned', value: 'concerned', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'eyes': {
                     setTraitItems([
-                        { label: 'Normal', value: 'normal', textStyle: styles.dropdownItemText },
-                        { label: 'Happy', value: 'happy', textStyle: styles.dropdownItemText },
-                        { label: 'Squint', value: 'squint', textStyle: styles.dropdownItemText },
-                        { label: 'Simple', value: 'simple', textStyle: styles.dropdownItemText },
-                        { label: 'Dizzy', value: 'dizzy', textStyle: styles.dropdownItemText },
-                        { label: 'Wink', value: 'wink', textStyle: styles.dropdownItemText },
-                        { label: 'Hearts', value: 'hearts', textStyle: styles.dropdownItemText },
-                        { label: 'Crazy', value: 'crazy', textStyle: styles.dropdownItemText },
-                        { label: 'Cute', value: 'cute', textStyle: styles.dropdownItemText },
-                        { label: 'Dollars', value: 'dollars', textStyle: styles.dropdownItemText },
-                        { label: 'Stars', value: 'stars', textStyle: styles.dropdownItemText },
-                        { label: 'Cyborg', value: 'cyborg', textStyle: styles.dropdownItemText },
-                        { label: 'Eye Patch', value: 'piratePatch', textStyle: styles.dropdownItemText },
+                        { label: 'Normal', value: 'normal', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Happy', value: 'happy', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Squint', value: 'squint', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Simple', value: 'simple', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Dizzy', value: 'dizzy', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Wink', value: 'wink', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Hearts', value: 'hearts', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Crazy', value: 'crazy', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Cute', value: 'cute', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Dollars', value: 'dollars', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Stars', value: 'stars', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Cyborg', value: 'cyborg', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Eye Patch', value: 'piratePatch', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'facialHair': {
                     setTraitItems([
-                        { label: 'None', value: 'none', textStyle: styles.dropdownItemText },
-                        { label: 'Stubble', value: 'stubble', textStyle: styles.dropdownItemText },
-                        { label: 'Beard', value: 'mediumBeard', textStyle: styles.dropdownItemText },
-                        { label: 'Goatee', value: 'goatee', textStyle: styles.dropdownItemText },
+                        { label: 'None', value: 'none', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Stubble', value: 'stubble', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Beard', value: 'mediumBeard', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Goatee', value: 'goatee', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'hairColor': {
                     setTraitItems([
-                        { label: 'Blonde', value: 'blonde', textStyle: styles.dropdownItemText },
-                        { label: 'Black', value: 'black', textStyle: styles.dropdownItemText },
-                        { label: 'Brown', value: 'brown', textStyle: styles.dropdownItemText },
-                        { label: 'Orange', value: 'orange', textStyle: styles.dropdownItemText },
-                        { label: 'White', value: 'white', textStyle: styles.dropdownItemText },
-                        { label: 'Blue', value: 'blue', textStyle: styles.dropdownItemText },
-                        { label: 'Pink', value: 'pink', textStyle: styles.dropdownItemText },
+                        { label: 'Blonde', value: 'blonde', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Black', value: 'black', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Brown', value: 'brown', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Orange', value: 'orange', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'White', value: 'white', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Blue', value: 'blue', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Pink', value: 'pink', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'lipColor': {
                     setTraitItems([
-                        { label: 'Pink', value: 'pink', textStyle: styles.dropdownItemText },
-                        { label: 'Purple', value: 'purple', textStyle: styles.dropdownItemText },
-                        { label: 'Red', value: 'red', textStyle: styles.dropdownItemText },
-                        { label: 'Blue', value: 'turqoise', textStyle: styles.dropdownItemText },
-                        { label: 'Green', value: 'green', textStyle: styles.dropdownItemText },
+                        { label: 'Pink', value: 'pink', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Purple', value: 'purple', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Red', value: 'red', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Blue', value: 'turqoise', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Green', value: 'green', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'mouth': {
                     setTraitItems([
-                        { label: 'Smile', value: 'openSmile', textStyle: styles.dropdownItemText },
-                        { label: 'Lips', value: 'lips', textStyle: styles.dropdownItemText },
-                        { label: 'Grin', value: 'grin', textStyle: styles.dropdownItemText },
-                        { label: 'Sad', value: 'sad', textStyle: styles.dropdownItemText },
-                        { label: 'Serious', value: 'serious', textStyle: styles.dropdownItemText },
-                        { label: 'Tongue', value: 'tongue', textStyle: styles.dropdownItemText },
-                        { label: 'Pierced Tongue', value: 'piercedTongue', textStyle: styles.dropdownItemText },
-                        { label: 'Rainbow', value: 'vomitingRainbow', textStyle: styles.dropdownItemText },
+                        { label: 'Smile', value: 'openSmile', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Lips', value: 'lips', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Grin', value: 'grin', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Sad', value: 'sad', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Serious', value: 'serious', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Tongue', value: 'tongue', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Pierced Tongue', value: 'piercedTongue', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Rainbow', value: 'vomitingRainbow', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'body': {
                     setTraitItems([
-                        { label: 'Male', value: 'chest', textStyle: styles.dropdownItemText },
-                        { label: 'Female', value: 'breasts', textStyle: styles.dropdownItemText },
+                        { label: 'Male', value: 'chest', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Female', value: 'breasts', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'clothing': {
                     setTraitItems([
-                        { label: 'Shirt', value: 'shirt', textStyle: styles.dropdownItemText },
-                        { label: 'Naked', value: 'naked', textStyle: styles.dropdownItemText },
-                        { label: 'Dress Shirt', value: 'dressShirt', textStyle: styles.dropdownItemText },
-                        { label: 'V-Neck', value: 'vneck', textStyle: styles.dropdownItemText },
-                        { label: 'Tank Top', value: 'tankTop', textStyle: styles.dropdownItemText },
-                        { label: 'Dress', value: 'dress', textStyle: styles.dropdownItemText },
-                        { label: 'Denim Jacket', value: 'denimJacket', textStyle: styles.dropdownItemText },
-                        { label: 'Chequered Shirt', value: 'chequeredShirt', textStyle: styles.dropdownItemText },
-                        { label: 'Chequered Shirt Dark', value: 'chequeredShirtDark', textStyle: styles.dropdownItemText },
-                        { label: 'Hoodie', value: 'hoodie', textStyle: styles.dropdownItemText },
+                        { label: 'Shirt', value: 'shirt', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Naked', value: 'naked', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Dress Shirt', value: 'dressShirt', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'V-Neck', value: 'vneck', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Tank Top', value: 'tankTop', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Dress', value: 'dress', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Denim Jacket', value: 'denimJacket', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Chequered Shirt', value: 'chequeredShirt', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Chequered Shirt Dark', value: 'chequeredShirtDark', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Hoodie', value: 'hoodie', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
             
                 case 'clothingColor': {
                     setTraitItems([
-                        { label: 'Black', value: 'black', textStyle: styles.dropdownItemText },
-                        { label: 'Blue', value: 'blue', textStyle: styles.dropdownItemText },
-                        { label: 'Green', value: 'green', textStyle: styles.dropdownItemText },
-                        { label: 'Red', value: 'red', textStyle: styles.dropdownItemText },
-                        { label: 'White', value: 'white', textStyle: styles.dropdownItemText },
+                        { label: 'Black', value: 'black', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Blue', value: 'blue', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Green', value: 'green', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Red', value: 'red', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'White', value: 'white', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'skinTone': {
                     setTraitItems([
-                        { label: 'Light', value: 'light', textStyle: styles.dropdownItemText },
-                        { label: 'Black', value: 'black', textStyle: styles.dropdownItemText },
-                        { label: 'Yellow', value: 'yellow', textStyle: styles.dropdownItemText },
-                        { label: 'Orange', value: 'brown', textStyle: styles.dropdownItemText },
-                        { label: 'Brown', value: 'dark', textStyle: styles.dropdownItemText },
-                        { label: 'Red', value: 'red', textStyle: styles.dropdownItemText },
+                        { label: 'Light', value: 'light', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Black', value: 'black', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Yellow', value: 'yellow', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Orange', value: 'brown', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Brown', value: 'dark', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Red', value: 'red', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'hair': {
                     setTraitItems([
-                        { label: 'None', value: 'none', textStyle: styles.dropdownItemText },
-                        { label: 'Long', value: 'long', textStyle: styles.dropdownItemText },
-                        { label: 'Bun', value: 'bun', textStyle: styles.dropdownItemText },
-                        { label: 'Short', value: 'short', textStyle: styles.dropdownItemText },
-                        { label: 'Pixie', value: 'pixie', textStyle: styles.dropdownItemText },
-                        { label: 'Balding', value: 'balding', textStyle: styles.dropdownItemText },
-                        { label: 'Buzz', value: 'buzz', textStyle: styles.dropdownItemText },
-                        { label: 'Afro', value: 'afro', textStyle: styles.dropdownItemText },
-                        { label: 'Bob', value: 'bob', textStyle: styles.dropdownItemText },
-                        { label: 'Mohawk', value: 'mohawk', textStyle: styles.dropdownItemText },
+                        { label: 'None', value: 'none', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Long', value: 'long', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Bun', value: 'bun', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Short', value: 'short', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Pixie', value: 'pixie', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Balding', value: 'balding', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Buzz', value: 'buzz', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Afro', value: 'afro', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Bob', value: 'bob', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Mohawk', value: 'mohawk', textStyle: DropdownStyles.dropdownItemText },
 
                     ]);
                     break;
@@ -212,22 +211,22 @@ const AvatarPage = (props) => {
 
                 case 'hat': {
                     setTraitItems([
-                        { label: 'None', value: 'none', textStyle: styles.dropdownItemText },
-                        { label: 'Beanie', value: 'beanie', textStyle: styles.dropdownItemText },
-                        { label: 'Turban', value: 'turban', textStyle: styles.dropdownItemText },
-                        { label: 'Party', value: 'party', textStyle: styles.dropdownItemText },
-                        { label: 'Hijab', value: 'hijab', textStyle: styles.dropdownItemText },
+                        { label: 'None', value: 'none', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Beanie', value: 'beanie', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Turban', value: 'turban', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Party', value: 'party', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Hijab', value: 'hijab', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
 
                 case 'hatColor': {
                     setTraitItems([
-                        { label: 'Black', value: 'black', textStyle: styles.dropdownItemText },
-                        { label: 'Blue', value: 'blue', textStyle: styles.dropdownItemText },
-                        { label: 'Green', value: 'green', textStyle: styles.dropdownItemText },
-                        { label: 'Red', value: 'red', textStyle: styles.dropdownItemText },
-                        { label: 'White', value: 'white', textStyle: styles.dropdownItemText },
+                        { label: 'Black', value: 'black', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Blue', value: 'blue', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Green', value: 'green', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Red', value: 'red', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'White', value: 'white', textStyle: DropdownStyles.dropdownItemText },
                     ]);
                     break;
                 }
@@ -252,26 +251,26 @@ const AvatarPage = (props) => {
     }
 
     const categoryItems = [
-        { label: 'Face', value: 'face', untouchable: true, textStyle: styles.dropdownCategoryTitle },
-        { label: 'Accessory', value: 'accessory', parent: 'face', textStyle: styles.dropdownItemText },
-        { label: 'Eyebrows', value: 'eyebrows', parent: 'face', textStyle: styles.dropdownItemText },
-        { label: 'Eyes', value: 'eyes', parent: 'face', textStyle: styles.dropdownItemText },
-        //{ label: 'Lashes', value: 'lashes', parent: 'face', textStyle: styles.dropdownItemText },
-        { label: 'Mouth', value: 'mouth', parent: 'face', textStyle: styles.dropdownItemText },
-        { label: 'Lip Color', value: 'lipColor', parent: 'face', textStyle: styles.dropdownItemText },
+        { label: 'Face', value: 'face', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle },
+        { label: 'Accessory', value: 'accessory', parent: 'face', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Eyebrows', value: 'eyebrows', parent: 'face', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Eyes', value: 'eyes', parent: 'face', textStyle: DropdownStyles.dropdownItemText },
+        //{ label: 'Lashes', value: 'lashes', parent: 'face', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Mouth', value: 'mouth', parent: 'face', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Lip Color', value: 'lipColor', parent: 'face', textStyle: DropdownStyles.dropdownItemText },
 
-        { label: 'Body', value: 'bodyParent', untouchable: true, textStyle: styles.dropdownCategoryTitle },
-        { label: 'Body Type', value: 'body', parent: 'bodyParent', textStyle: styles.dropdownItemText },
-        { label: 'Clothing', value: 'clothing', parent: 'bodyParent', textStyle: styles.dropdownItemText },
-        { label: 'Clothing Color', value: 'clothingColor', parent: 'bodyParent', textStyle: styles.dropdownItemText },
-        { label: 'Skin Tone', value: 'skinTone', parent: 'bodyParent', textStyle: styles.dropdownItemText },
+        { label: 'Body', value: 'bodyParent', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle },
+        { label: 'Body Type', value: 'body', parent: 'bodyParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Clothing', value: 'clothing', parent: 'bodyParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Clothing Color', value: 'clothingColor', parent: 'bodyParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Skin Tone', value: 'skinTone', parent: 'bodyParent', textStyle: DropdownStyles.dropdownItemText },
 
-        { label: 'Hair / Hat', value: 'hairParent', untouchable: true, textStyle: styles.dropdownCategoryTitle },
-        { label: 'Hair Type', value: 'hair', parent: 'hairParent', textStyle: styles.dropdownItemText },
-        { label: 'Facial Hair', value: 'facialHair', parent: 'hairParent', textStyle: styles.dropdownItemText },
-        { label: 'Hair Color', value: 'hairColor', parent: 'hairParent', textStyle: styles.dropdownItemText },
-        { label: 'Hat', value: 'hat', parent: 'hairParent', textStyle: styles.dropdownItemText },
-        { label: 'Hat Color', value: 'hatColor', parent: 'hairParent', textStyle: styles.dropdownItemText },
+        { label: 'Hair / Hat', value: 'hairParent', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle },
+        { label: 'Hair Type', value: 'hair', parent: 'hairParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Facial Hair', value: 'facialHair', parent: 'hairParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Hair Color', value: 'hairColor', parent: 'hairParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Hat', value: 'hat', parent: 'hairParent', textStyle: DropdownStyles.dropdownItemText },
+        { label: 'Hat Color', value: 'hatColor', parent: 'hairParent', textStyle: DropdownStyles.dropdownItemText },
     ];
 
     return (
@@ -285,27 +284,27 @@ const AvatarPage = (props) => {
                         <DropDownPicker
                             items={categoryItems}
                             containerStyle={styles.dropdownStyle}
-                            style={styles.primaryDropdown}
-                            itemStyle={styles.dropdownItem}
-                            dropDownStyle={styles.dropdownItemContainer}
+                            style={DropdownStyles.primaryDropdown}
+                            itemStyle={DropdownStyles.dropdownItem}
+                            dropDownStyle={DropdownStyles.dropdownItemContainer}
                             onChangeItem={item => setCategory(item.value)}
-                            globalTextStyle={styles.dropdownSelectedText}
+                            globalTextStyle={DropdownStyles.dropdownSelectedText}
                             placeholder={"Select a category"}
                             dropDownMaxHeight={height * .3}
-                            activeLabelStyle={styles.dropdownSelectedItem}
+                            activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                         />
                         <DropDownPicker
                             items={traitItems}
                             defaultValue={defaultTrait}
                             containerStyle={styles.dropdownStyle}
-                            style={styles.primaryDropdown}
-                            itemStyle={styles.dropdownItem}
-                            dropDownStyle={styles.dropdownItemContainer}
+                            style={DropdownStyles.primaryDropdown}
+                            itemStyle={DropdownStyles.dropdownItem}
+                            dropDownStyle={DropdownStyles.dropdownItemContainer}
                             onChangeItem={item => updateAvatar(item)}
-                            globalTextStyle={styles.dropdownSelectedText}
+                            globalTextStyle={DropdownStyles.dropdownSelectedText}
                             placeholder={"Select a trait"}
                             dropDownMaxHeight={height * .3}
-                            activeLabelStyle={styles.dropdownSelectedItem}
+                            activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                         />
                     </View>
                     <View style={styles.buttonContainer}>

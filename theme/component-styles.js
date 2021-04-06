@@ -28,4 +28,37 @@ const ImageStyles = StyleSheet.create({
     }
 })
 
-export { ButtonStyles, ImageStyles }
+const DropdownStyles = StyleSheet.create({
+    primaryDropdown: {
+        backgroundColor: colors.primary_light, 
+        borderColor: 'black',
+        borderRightWidth: 0,
+        borderTopWidth: 0,
+        borderLeftWidth: 0,
+    },
+    dropdownItem: {
+        justifyContent: 'flex-start',
+    },
+    dropdownItemContainer: {
+        justifyContent: 'flex-start',
+        backgroundColor: '#fafafa', 
+        borderColor: '#fafafa',
+    },
+    dropdownCategoryTitle: {
+        fontFamily: 'bold',
+        color: 'black',
+    },
+    dropdownItemText: {
+        fontFamily: 'regular',        
+        color: 'black',
+    },
+    dropdownSelectedText: {
+        fontFamily: 'regular',
+        color: 'black',
+    },
+    dropdownSelectedItem: {
+        color: colors.primary,
+    }
+})
+
+export { ButtonStyles, ImageStyles, DropdownStyles }
