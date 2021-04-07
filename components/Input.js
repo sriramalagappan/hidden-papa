@@ -30,7 +30,7 @@ const height = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
     outerContainer: {
-        marginVertical: 20,
+        marginVertical: 10,
         borderColor: 'black',
         borderBottomWidth: 1,
         width: width * .75,
@@ -39,8 +39,8 @@ const styles = StyleSheet.create({
     },
     input: {
         color: 'black',
-        fontSize: 15,
-        fontFamily: 'regular',
+        fontSize: 18,
+        fontFamily: 'thin',
     }
 });
 

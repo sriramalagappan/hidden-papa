@@ -53,16 +53,20 @@ const HomePage = (props) => {
         props.navigation.navigate('Avatar');
     }
 
-    const CreateRoomHandler = () => {
+    const CreateRoomRoute = () => {
         props.navigation.navigate('CreateRoom');
+    }
+
+    const JoinRoomRoute = () => {
+        props.navigation.navigate('JoinRoom');
     }
 
     return (
         <View style={styles.container}>
             <ImageBackground source={image} style={ImageStyles.background}>
                 <View style={styles.margin} />
-                <HomeButtonLarge text={"Create a Room"} icon={"create-outline"} onPress={CreateRoomHandler} />
-                <HomeButtonLarge text={"Join a Room"} icon={"add-outline"} />
+                <HomeButtonLarge text={"Create a Room"} icon={"create-outline"} onPress={CreateRoomRoute} />
+                <HomeButtonLarge text={"Join a Room"} icon={"add-outline"} onPress={JoinRoomRoute} />
                 <View style={styles.smallButtonContainer}>
                     <HomeButtonAvatar avatar={avatarCopy} onPress={AvatarButtonHandler} />
                     <HomeButtonSmall text={"About"} icon={"information-circle-outline"} />

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, TouchableOpacity, StyleSheet, TouchableNativeFeedback, Platform, Text, Dimensions } from 'react-native'
+import { View, TouchableOpacity, StyleSheet, TouchableNativeFeedback, Platform, Text, Dimensions, ActivityIndicator } from 'react-native'
 import colors from '../theme/colors'
 
 const Button = props => {
@@ -14,11 +14,18 @@ const Button = props => {
 
     return (
         <View style={buttonContainerStyle}>
-            <TouchableCmp style={(Platform.OS === 'android') ? {flex:1} : null} onPress={props.onPress}>
+            <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={props.onPress}>
                 <View style={{ ...styles.button, ...props.style }}>
-                    <Text style={{ ...styles.text, ...props.textStyle}}>
-                        {props.children}
-                    </Text>
+                    {props.isLoading ?
+                        (
+                            <ActivityIndicator color={'black'} size={20} />
+                        )
+                        : (
+                            <Text style={{ ...styles.text, ...props.textStyle }}>
+                                {props.children}
+                            </Text>
+                        )
+                    }
                 </View>
             </TouchableCmp>
         </View>
@@ -32,7 +39,7 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: colors.primary_light,
         width: width * .4,
-        height: height *.06,
+        height: height * .06,
         borderRadius: 5,
         justifyContent: 'center',
     },
