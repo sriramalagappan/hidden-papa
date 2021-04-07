@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const GET_AVATAR = 'GET_AVATAR';
 
-const defaultAvatar = {
+export const defaultAvatar = {
     accessory: "none",
     body: "chest",
     clothing: "shirt",

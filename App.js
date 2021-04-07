@@ -18,9 +18,11 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk'
 import avatarReducer from './store/reducers/avatar';
+import roomReducer from './store/reducers/room';
 
 const rootReducer = combineReducers({
   avatar: avatarReducer,
+  room: roomReducer,
 })
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk))

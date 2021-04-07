@@ -22,13 +22,26 @@ export const login = async () => {
     }
 }
 
-export const createRoom = async (roomCode) => {
+export const createRoom = async (roomCode, username, avatar) => {
     try {
         const db = firebase.firestore();
         db.collection("rooms")
             .doc(roomCode)
             .set({
-                test: "test"
+                roomCode,
+                users: [
+                    {
+                        username: username, 
+                        avatar: avatar, 
+                        isHost: true,
+                        ready: false,
+                    }
+                ],
+                latestActionTime: Date.now(),
+                gameDifficulty: 'normal',
+                gameTimeLength: 300000, // 5 minutes
+                phase: 'prep',
+                game: {} // stores contents of game once it begins
             })
     } catch (err) {
         const errorMessage = err.message;

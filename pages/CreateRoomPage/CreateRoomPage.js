@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, Dimensions, Alert} from 'react-native';
+import { View, ImageBackground, Dimensions, Alert } from 'react-native';
 import styles from './styles';
 import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import DropDownPicker from 'react-native-dropdown-picker';
 import Input from '../../components/Input';
 import { init, login, createRoom, isCodeUnique } from '../../api/firebaseMethods';
+import * as roomActions from '../../store/actions/room';
 
 const height = Dimensions.get('window').height;
 
@@ -17,6 +18,9 @@ const CreateRoomPage = (props) => {
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
 
+    // Redux Store-State Variables
+    const roomCode = useSelector(state => state.room.roomCode)
+
     // Stateful Variables
     const [username, setUsername] = useState('');
     const [server, setServer] = useState('');
@@ -26,29 +30,32 @@ const CreateRoomPage = (props) => {
     };
 
     const createRoomHandler = async () => {
-        try {
-            await init();
-            await login();
-            const roomCode = await generateUniqueRoomCode();
-            await createRoom(roomCode);
-        } catch (err) {
-            Alert.alert("Sorry, something went wrong. Please try again", err.message);
+        // Precondition checks
+        if (!username) {
+            Alert.alert("Username Required", "Please enter a username")
+        } else if (!server) {
+            Alert.alert("Server Location Required", "Please choose a server location")
+        } else {
+            try {
+                await init();
+                await login();
+                const roomCode = await generateUniqueRoomCode();
+                await dispatch(roomActions.createRoom(roomCode, username))
+            } catch (err) {
+                Alert.alert("Sorry, something went wrong. Please try again", err.message);
+            }
         }
     }
-
-    const roomCreatedHandler = () => {
-        //props.navigation.navigate('Home');
-    };
 
     const codeGenerator = () => {
         // create random code
         let result = "";
         const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        
+
         for (var i = 0; i < 6; i++) {
             result += charset.charAt(Math.floor(Math.random() * charset.length));
         }
-        
+
         return result;
     }
 
