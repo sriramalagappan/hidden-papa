@@ -1,11 +1,12 @@
-import { JOIN_ROOM, UPDATE_ROOM_DATA } from '../actions/room';
+import { JOIN_ROOM, RESET_ROOM, UPDATE_ROOM_DATA } from '../actions/room';
 
 const initialState = {
-    roomCode: '',
+    roomCode: '992683',
     users: [],
     phase: '',
     gameTimeLength: 0,
     gameDifficulty: '',
+    me: '',
 }
 
 const roomReducer = (state = initialState, action) => {
@@ -13,7 +14,8 @@ const roomReducer = (state = initialState, action) => {
         case JOIN_ROOM: {
             return {
                 ...initialState,
-                roomCode: action.roomCode
+                roomCode: action.roomCode,
+                me: action.username,
             }
         }
         case UPDATE_ROOM_DATA: {
@@ -25,8 +27,11 @@ const roomReducer = (state = initialState, action) => {
                 gameDifficulty: action.gameDifficulty,
             }
         }
+        case RESET_ROOM: {
+            return initialState;
+        }
         default: {
-            return state
+            return state;
         }
     }
 }

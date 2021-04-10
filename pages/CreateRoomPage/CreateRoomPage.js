@@ -63,7 +63,7 @@ const CreateRoomPage = (props) => {
     const codeGenerator = () => {
         // create random code
         let result = "";
-        const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        const charset = "1234567890";
 
         for (var i = 0; i < 6; i++) {
             result += charset.charAt(Math.floor(Math.random() * charset.length));
@@ -97,7 +97,7 @@ const CreateRoomPage = (props) => {
                         keyboardType={"default"}
                         autoCapitalize={"none"}
                         autoCorrect={false}
-                        maxLength={20}
+                        maxLength={15}
                         multiline={false}
                         numberOfLines={1}
                         textAlign={"left"}

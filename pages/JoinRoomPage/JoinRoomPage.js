@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, Dimensions, Alert } from 'react-native';
+import { View, ImageBackground, Dimensions, Alert, Text } from 'react-native';
 import styles from './styles';
 import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
@@ -10,6 +10,7 @@ import { init, login } from '../../api/firebaseMethods';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import ServerLocations from '../../data/ServerLocations';
+import CharacterInput from 'react-native-character-input'
 
 const height = Dimensions.get('window').height;
 
@@ -61,14 +62,6 @@ const JoinRoomPage = (props) => {
                 await init();
                 await login();
 
-                // See if room does not exist
-                const result = await api.checkRoom(roomCodeInput);
-                if (result) {
-                    setIsLoading(false)
-                    Alert.alert("Invalid Room Code", "Sorry, we could not find a room that matches the provided room code. Please make sure you have the correct code and try again");
-                    return;
-                }
-
                 await dispatch(roomActions.joinRoom(roomCodeInput, username))
             } catch (err) {
                 setIsLoading(false)
@@ -81,18 +74,15 @@ const JoinRoomPage = (props) => {
     return (
         <View style={styles.container}>
             <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
-                <View style={styles.inputContainer}>
-                    <Input
-                        onChangeText={updateRoomCode}
-                        value={roomCodeInput}
-                        placeholder={"Enter the room code"}
-                        keyboardType={"default"}
-                        autoCapitalize={"none"}
-                        autoCorrect={false}
-                        maxLength={6}
-                        multiline={false}
-                        numberOfLines={1}
-                        textAlign={"left"}
+                <View style={styles.roomCodeContainer}>
+                    <Text style={styles.text}>Room Code: </Text>
+                    <CharacterInput 
+                        placeHolder='      '
+                        showCharBinary='111111'
+                        handleChange={(value) => updateRoomCode(value)}
+                        inputType='contained'
+                        keyboardType="numeric"
+                        inputStyle={styles.inputText}
                     />
                 </View>
                 <View style={styles.inputContainer}>
@@ -103,7 +93,7 @@ const JoinRoomPage = (props) => {
                         keyboardType={"default"}
                         autoCapitalize={"none"}
                         autoCorrect={false}
-                        maxLength={20}
+                        maxLength={15}
                         multiline={false}
                         numberOfLines={1}
                         textAlign={"left"}

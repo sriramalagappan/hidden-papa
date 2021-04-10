@@ -6,6 +6,7 @@ import HomeButtonSmall from '../../components/HomeButtonSmall'
 import HomeButtonAvatar from '../../components/HomeButtonAvatar'
 import { ImageStyles } from '../../theme/component-styles';
 import * as avatarActions from '../../store/actions/avatar';
+import * as roomActions from '../../store/actions/room';
 import { useDispatch, useSelector } from 'react-redux'
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -21,6 +22,8 @@ const HomePage = (props) => {
     const [avatarCopy, setAvatarCopy] = useState({}) // used for performance
     const [isLoading, setIsLoading] = useState(true)
 
+    
+
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
 
@@ -32,12 +35,13 @@ const HomePage = (props) => {
             }
 
             InteractionManager.runAfterInteractions(() => {
-                getAvatar()
-                setIsLoading(false)
+                getAvatar();
+                setIsLoading(false);
+                dispatch(roomActions.resetRoom());
             });
 
             return () => {
-                setIsLoading(true)
+                setIsLoading(true);
             };
         }, [])
     );

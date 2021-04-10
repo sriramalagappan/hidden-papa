@@ -32,5 +32,20 @@ export default StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         marginTop: height * .35,
+    },
+    roomCodeContainer: {
+        alignItems: 'center',
+        width: '100%',
+        marginTop: height * .04,
+    },
+    text: {
+        color: '#282828',
+        fontSize: 18,
+        fontFamily: 'thin',
+    },
+    inputText: {
+        color: 'black',
+        fontSize: 20,
+        fontFamily: 'bold',
     }
 })

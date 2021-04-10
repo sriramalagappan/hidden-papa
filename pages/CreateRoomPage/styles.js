@@ -32,5 +32,5 @@ export default StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         marginTop: height * .35,
-    }
+    },
 })
