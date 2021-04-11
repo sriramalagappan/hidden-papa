@@ -19,6 +19,8 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk'
 import avatarReducer from './store/reducers/avatar';
 import roomReducer from './store/reducers/room';
+import { LogBox } from 'react-native';
+import _ from 'lodash';
 
 const rootReducer = combineReducers({
   avatar: avatarReducer,
@@ -40,6 +42,13 @@ const fetchFonts = () => {
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false)
+  LogBox.ignoreLogs(['Setting a timer']);
+  const _console = _.clone(console);
+  console.warn = message => {
+    if (message.indexOf('Setting a timer') <= -1) {
+      _console.warn(message);
+    }
+  };
 
   if (!fontLoaded) {
     return (

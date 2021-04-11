@@ -129,7 +129,7 @@ const MainNavigator = () => {
                         cardStyle: {
                             backgroundColor: colors.primary,
                             opacity: 1,
-                        }
+                        },
                     }}
                 />
             </Stack.Navigator>

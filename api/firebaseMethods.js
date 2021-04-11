@@ -22,73 +22,69 @@ export const login = async () => {
     }
 }
 
-export const createRoom = async (roomCode, username, avatar) => {
+export const createRoom = async (roomCode, username, avatar, server) => {
     try {
         const db = firebase.firestore();
-        db.collection("rooms")
+        await db.collection("rooms")
             .doc(roomCode)
             .set({
                 roomCode,
-                users: [
-                    {
-                        username: username,
-                        avatar: avatar,
-                        isHost: true,
-                        isReady: false,
-                    }
-                ],
                 latestActionTime: Date.now(),
                 gameDifficulty: 'normal',
                 gameTimeLength: 300000, // 5 minutes
                 phase: 'prep',
-                game: {} // stores contents of game once it begins
+                server,
+            });
+
+        await db.collection("rooms")
+            .doc(roomCode).collection("users")
+            .doc(username).set({
+                username,
+                avatar,
+                isHost: true,
+                isReady: false,
+                gamesPlayed: 0,
+                gamesWonHP: 0,
+                gamesWonGuesser: 0,
             })
+
     } catch (err) {
         const errorMessage = err.message;
         Alert.alert("Sorry, something went wrong. Please try again", errorMessage);
     }
 }
 
-export const joinRoom = async (roomCode, username, avatar) => {
+export const joinRoom = async (roomCode, username, avatar, server) => {
     try {
         const db = firebase.firestore();
-        const roomRef = db.collection('rooms').doc(roomCode);
 
-        // get current users
-        let userData = [];
-        await roomRef.get().then((doc) => {
-            if (doc.exists) {
-                const data = doc.data()
-                userData = data.users.slice();
-            } else {
-                throw "We could not find a room with the given room code. Please check the code and server location and try again"
-            }
-        })
+        const userSnapshot = await db.collection("rooms")
+            .doc(roomCode).collection("users").get();
+        const users = userSnapshot.docs.map(doc => doc.id)
 
         // Check if room is full
-        if (userData.length >= 8) {
+        if (users.length >= 8) {
             throw "This room is currently full. Please try joining a new room or making your own"
         }
 
-        // Check is dup username, then throw error
-        for (let i = 0; i < userData.length; i++) {
-            if (userData[i].username === username) {
-                throw ("The username, " + username + ", has already been taken. Please enter a new username")
-            }
+        // Check if dup username, then throw error
+        if (users.indexOf(username) !== -1) {
+            throw "The username, " + username + ", has already been taken. Please enter a new username"
         }
 
-        // add user locally
-        userData.push({
-            username: username,
-            avatar: avatar,
-            isHost: false,
-            isReady: false,
-        })
+        await db.collection("rooms")
+            .doc(roomCode).collection("users")
+            .doc(username).set({
+                username,
+                avatar,
+                isHost: false,
+                isReady: false,
+                gamesPlayed: 0,
+                gamesWonHP: 0,
+                gamesWonGuesser: 0,
+            })
 
-        // push to db
-        await roomRef.set({
-            users: userData,
-        }, { merge: true });
+
     } catch (err) {
         const errorMessage = err.message;
         console.log(errorMessage);
@@ -131,6 +127,47 @@ export const roomListener = async (roomCode, onChange) => {
     }
 }
 
+export const usersListener = async (roomCode, onChange) => {
+    try {
+        // NEED TO REMOVE LOGIN
+        init();
+        await login();
+        const db = firebase.firestore();
+        const listener = db.collection('rooms').doc(roomCode).collection('users')
+            .onSnapshot((querySnapshot) => {
+                let users = [];
+                querySnapshot.forEach((doc) => {
+                    users.push(doc.data());
+                })
+                onChange(users)
+            }, (error) => {
+                console.log(error);
+                throw error;
+            });
+        return listener
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
+export const updateUser = async (roomCode, user, data) => {
+    try {
+        const db = firebase.firestore();
+        const userRef = db.collection('rooms')
+            .doc(roomCode).collection('users')
+            .doc(user);
+
+        await userRef.set({ ...data }, { merge: true });
+
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
 // export const setEnWords = async () => {
 //     try {
 //         const db = firebase.firestore();
@@ -151,3 +188,14 @@ export const logout = async () => {
         Alert.alert("Sorry, something went wrong. Please try again", err.message);
     }
 }
+
+
+        // await roomRef.get().then((doc) => {
+        //     if (doc.exists) {
+        //         const data = doc.data()
+        //         //console.log(data);
+        //         //userData = data.users.slice();
+        //     } else {
+        //         throw "We could not find a room with the given room code. Please check the code and server location and try again"
+        //     }
+        // })

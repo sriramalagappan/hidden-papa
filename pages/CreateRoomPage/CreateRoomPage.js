@@ -26,7 +26,7 @@ const CreateRoomPage = (props) => {
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
         if (roomCode) {
-            props.navigation.navigate("Lobby")
+            props.navigation.replace("Lobby")
         }
     }, [roomCode])
 
@@ -51,7 +51,7 @@ const CreateRoomPage = (props) => {
                 await init();
                 await login();
                 const roomCode = await generateUniqueRoomCode();
-                await dispatch(roomActions.createRoom(roomCode, username))
+                await dispatch(roomActions.createRoom(roomCode, username, server))
             } catch (err) {
                 setIsLoading(false)
                 Alert.alert("Sorry, something went wrong. Please try again", err.message);

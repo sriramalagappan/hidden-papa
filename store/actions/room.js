@@ -4,9 +4,10 @@ import { Alert } from "react-native";
 
 export const JOIN_ROOM = 'JOIN_ROOM';
 export const UPDATE_ROOM_DATA = 'UPDATE_ROOM_DATA';
+export const UPDATE_USERS_DATA = 'UPDATE_USERS_DATA';
 export const RESET_ROOM = 'RESET_ROOM';
 
-export const createRoom = (roomCode, username) => {
+export const createRoom = (roomCode, username, server) => {
     return async dispatch => {
         try {
             let avatar = await avatarActions.getAvatarFromStorage();
@@ -14,7 +15,7 @@ export const createRoom = (roomCode, username) => {
             if (!avatar) {
                 avatar = avatarActions.defaultAvatar
             }            
-            await api.createRoom(roomCode, username, avatar);
+            await api.createRoom(roomCode, username, avatar, server);
             dispatch({
                 type: JOIN_ROOM,
                 roomCode,
@@ -26,7 +27,7 @@ export const createRoom = (roomCode, username) => {
     }
 }
 
-export const joinRoom = (roomCode, username) => {
+export const joinRoom = (roomCode, username, server) => {
     return async dispatch => {
         try {
             let avatar = await avatarActions.getAvatarFromStorage();
@@ -34,7 +35,7 @@ export const joinRoom = (roomCode, username) => {
             if (!avatar) {
                 avatar = avatarActions.defaultAvatar
             }            
-            await api.joinRoom(roomCode, username, avatar);
+            await api.joinRoom(roomCode, username, avatar, server);
             dispatch({
                 type: JOIN_ROOM,
                 roomCode,
@@ -51,10 +52,23 @@ export const updateRoomData = (data) => {
         try {
             dispatch({
                 type: UPDATE_ROOM_DATA,
-                users: data.users,
                 phase: data.phase,
                 gameTimeLength: data.gameTimeLength,
                 gameDifficulty: data.gameDifficulty,
+                server: data.server,
+            })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+}
+
+export const updateUsersData = (users) => {
+    return async dispatch => {
+        try {
+            dispatch({
+                type: UPDATE_USERS_DATA,
+                users,
             })
         } catch (err) {
             console.log(err)

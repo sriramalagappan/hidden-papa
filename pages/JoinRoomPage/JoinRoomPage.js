@@ -28,7 +28,7 @@ const JoinRoomPage = (props) => {
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
         if (roomCode) {
-            props.navigation.navigate("Lobby")
+            props.navigation.replace("Lobby")
         }
     }, [roomCode])
 
