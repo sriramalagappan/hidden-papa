@@ -183,7 +183,7 @@ const AvatarPage = (props) => {
                 case 'skinTone': {
                     setTraitItems([
                         { label: 'Light', value: 'light', textStyle: DropdownStyles.dropdownItemText },
-                        { label: 'Black', value: 'black', textStyle: DropdownStyles.dropdownItemText },
+                        { label: 'Dark', value: 'black', textStyle: DropdownStyles.dropdownItemText },
                         { label: 'Yellow', value: 'yellow', textStyle: DropdownStyles.dropdownItemText },
                         { label: 'Orange', value: 'brown', textStyle: DropdownStyles.dropdownItemText },
                         { label: 'Brown', value: 'dark', textStyle: DropdownStyles.dropdownItemText },
@@ -290,7 +290,7 @@ const AvatarPage = (props) => {
                             onChangeItem={item => setCategory(item.value)}
                             globalTextStyle={DropdownStyles.dropdownSelectedText}
                             placeholder={"Select a category"}
-                            dropDownMaxHeight={height * .3}
+                            dropDownMaxHeight={height * .25}
                             activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                         />
                         <DropDownPicker
@@ -303,7 +303,7 @@ const AvatarPage = (props) => {
                             onChangeItem={item => updateAvatar(item)}
                             globalTextStyle={DropdownStyles.dropdownSelectedText}
                             placeholder={"Select a trait"}
-                            dropDownMaxHeight={height * .3}
+                            dropDownMaxHeight={height * .25}
                             activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                         />
                     </View>

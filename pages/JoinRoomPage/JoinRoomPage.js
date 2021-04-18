@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, Dimensions, Alert, Text } from 'react-native';
+import { View, ImageBackground, Dimensions, Alert, Text, Keyboard} from 'react-native';
 import styles from './styles';
 import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
@@ -11,6 +11,7 @@ import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import ServerLocations from '../../data/ServerLocations';
 import CharacterInput from 'react-native-character-input'
+import { CommonActions } from '@react-navigation/native';
 
 const height = Dimensions.get('window').height;
 
@@ -28,7 +29,14 @@ const JoinRoomPage = (props) => {
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
         if (roomCode) {
-            props.navigation.replace("Lobby")
+            props.navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                        { name: 'Lobby' }
+                    ]
+                })
+            )
         }
     }, [roomCode])
 
@@ -41,6 +49,10 @@ const JoinRoomPage = (props) => {
     const updateRoomCode = (input) => {
         if (input.length <= 6) {
             setRoomCodeInput(input)
+        }
+
+        if (input.length === 6) {
+            Keyboard.dismiss();
         }
     }
 

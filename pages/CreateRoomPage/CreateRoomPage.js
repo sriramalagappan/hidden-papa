@@ -9,6 +9,7 @@ import Input from '../../components/Input';
 import { init, login, checkRoom } from '../../api/firebaseMethods';
 import * as roomActions from '../../store/actions/room';
 import ServerLocations from '../../data/ServerLocations';
+import { CommonActions } from '@react-navigation/native';
 
 const height = Dimensions.get('window').height;
 
@@ -26,7 +27,14 @@ const CreateRoomPage = (props) => {
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
         if (roomCode) {
-            props.navigation.replace("Lobby")
+            props.navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                        { name: 'Lobby' }
+                    ]
+                })
+            )
         }
     }, [roomCode])
 

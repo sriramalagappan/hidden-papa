@@ -1,13 +1,14 @@
 import { JOIN_ROOM, RESET_ROOM, UPDATE_ROOM_DATA, UPDATE_USERS_DATA } from '../actions/room';
 
 const initialState = {
-    roomCode: '425918',
+    roomCode: '641147',
     users: [],
     phase: '',
     gameTimeLength: 0,
     gameDifficulty: '',
     server: '',
-    me: 'hope',
+    me: 'gdd',
+    msg: {},
 }
 
 const roomReducer = (state = initialState, action) => {
@@ -26,6 +27,7 @@ const roomReducer = (state = initialState, action) => {
                 gameTimeLength: action.gameTimeLength,
                 gameDifficulty: action.gameDifficulty,
                 server: action.server,
+                msg: action.msg,
             }
         }
         case UPDATE_USERS_DATA: {

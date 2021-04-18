@@ -24,14 +24,13 @@ export default StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         width: '100%',
-        height: height * .35
+        height: height * .3
     },
     dropdownStyle: {
         height: height * .06,
         width: '45%',
     },
     buttonContainer: {
-        marginTop: height * .005,
         alignItems: 'center'
     },
 })

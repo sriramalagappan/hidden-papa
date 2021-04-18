@@ -1,11 +1,11 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { View, ImageBackground } from 'react-native';
 import styles from './styles';
 import { ImageStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
 import * as avatarActions from '../../store/actions/avatar';
 import { useDispatch } from 'react-redux'
-
+import { CommonActions } from '@react-navigation/native';
 
 const image = require('../../assets/HiddenPapaIntro.png')
 const backgroundImage = require('../../assets/Background.png')
@@ -25,7 +25,14 @@ const IntroPage = (props) => {
     }, [])
 
     const startHandler = () => {
-        props.navigation.navigate('Home');
+        props.navigation.dispatch(
+            CommonActions.reset({
+                index: 1,
+                routes: [
+                    { name: 'Home' }
+                ]
+            })
+        )
     };
 
     return (

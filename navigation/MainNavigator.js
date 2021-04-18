@@ -72,7 +72,7 @@ const MainNavigator = () => {
                     component={CreateRoomPage}
                     options={{
                         headerShown: true,
-                        headerTitle: 'Create a New Game Room',
+                        headerTitle: 'Create a Game Room',
                         headerStyle: {
                             backgroundColor: colors.primary,
                         },

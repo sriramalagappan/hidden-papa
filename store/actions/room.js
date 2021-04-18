@@ -56,6 +56,7 @@ export const updateRoomData = (data) => {
                 gameTimeLength: data.gameTimeLength,
                 gameDifficulty: data.gameDifficulty,
                 server: data.server,
+                msg: data.msg,
             })
         } catch (err) {
             console.log(err)

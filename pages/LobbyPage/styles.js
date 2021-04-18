@@ -45,12 +45,12 @@ export default StyleSheet.create({
     title: {
         textAlign: 'center',
         fontFamily: 'bold',
-        fontSize: 45,
+        fontSize: width * .1,
     },
     subtitle: {
         textAlign: 'center',
         fontFamily: 'regular',
-        fontSize: 25,
+        fontSize: width * .06,
     },
     sideContainer: {
         width: width,
@@ -83,8 +83,8 @@ export default StyleSheet.create({
     },
     readyIcon: {
         position: 'absolute',
-        right: 10,
-        top: 10,
+        right: width * .01,
+        top: height * .01,
     },
     msgContainer: {
         marginTop: height * .03
@@ -101,16 +101,15 @@ export default StyleSheet.create({
     },
 
     modal: {
-        marginLeft: 30,
-        marginRight: 30,
+        padding: 10,
         ...Platform.select({
             ios: {
-                backgroundColor: colors.primary,
+                backgroundColor: 'white',
                 borderRadius: 10,
                 minWidth: 300,
             },
             android: {
-                backgroundColor: colors.primary,
+                backgroundColor: 'white',
                 elevation: 24,
                 minWidth: 280,
                 borderRadius: 5,
@@ -141,5 +140,23 @@ export default StyleSheet.create({
     modalMessage: {
         fontFamily: 'regular',
         fontSize: 16,
+    },
+
+    modalPlayerText: {
+        fontFamily: 'bold',
+        fontSize: 25,
+    },
+    marginLrg: {
+        marginTop: 20,
+    },
+    marginSml: {
+        marginTop: 10,
+    },
+    modalButton: {
+        backgroundColor: 'white'
+    },
+    kick: {
+        color: 'red',
+        fontFamily: 'bold'
     }
 });

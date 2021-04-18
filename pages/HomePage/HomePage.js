@@ -10,7 +10,6 @@ import * as roomActions from '../../store/actions/room';
 import { useDispatch, useSelector } from 'react-redux'
 import { useFocusEffect } from '@react-navigation/native';
 
-
 const image = require('../../assets/Background.png')
 
 const HomePage = (props) => {
@@ -23,7 +22,6 @@ const HomePage = (props) => {
     const [isLoading, setIsLoading] = useState(true)
 
     
-
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
 
