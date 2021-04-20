@@ -7,6 +7,7 @@ import AvatarPage from '../pages/AvatarPage/AvatarPage';
 import CreateRoomPage from '../pages/CreateRoomPage/CreateRoomPage';
 import JoinRoomPage from '../pages/JoinRoomPage/JoinRoomPage';
 import LobbyPage from '../pages/LobbyPage/LobbyPage';
+import GMWaitPage from '../pages/GameMasterWaitPage/GMWaitPage';
 import colors from '../theme/colors'
 import { Ionicons } from '@expo/vector-icons';
 
@@ -58,7 +59,7 @@ const MainNavigator = () => {
                             // Don't display for now 
                             color: colors.primary,
                             fontSize: 16,
-                            fontFamily: 'thin' 
+                            fontFamily: 'thin'
                         },
                         headerBackImage: () => (<Ionicons name={'chevron-back'} size={30} color="black" />),
                         cardStyle: {
@@ -85,7 +86,7 @@ const MainNavigator = () => {
                             // Don't display for now 
                             color: colors.primary,
                             fontSize: 16,
-                            fontFamily: 'thin' 
+                            fontFamily: 'thin'
                         },
                         headerBackImage: () => (<Ionicons name={'chevron-back'} size={30} color="black" />),
                         cardStyle: {
@@ -112,7 +113,7 @@ const MainNavigator = () => {
                             // Don't display for now 
                             color: colors.primary,
                             fontSize: 16,
-                            fontFamily: 'thin' 
+                            fontFamily: 'thin'
                         },
                         headerBackImage: () => (<Ionicons name={'chevron-back'} size={30} color="black" />),
                         cardStyle: {
@@ -124,6 +125,17 @@ const MainNavigator = () => {
                 <Stack.Screen
                     name="Lobby"
                     component={LobbyPage}
+                    options={{
+                        headerShown: false,
+                        cardStyle: {
+                            backgroundColor: colors.primary,
+                            opacity: 1,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="GMWait"
+                    component={GMWaitPage}
                     options={{
                         headerShown: false,
                         cardStyle: {

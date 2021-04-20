@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { View, ImageBackground, Dimensions, ActivityIndicator, TouchableOpacity, Text, FlatList, Modal, Alert } from 'react-native';
 import styles from './styles';
-import { ImageStyles } from '../../theme/component-styles';
-import Button from '../../components/Button'
-import SmallButton from '../../components/SmallButton'
-import { useDispatch, useSelector } from 'react-redux'
+import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
+import Button from '../../components/Button';
+import SmallButton from '../../components/SmallButton';
+import { useDispatch, useSelector } from 'react-redux';
 import BigHead from '../../components/BigHead';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../../theme/colors';
 import ServerLocations from '../../data/ServerLocations';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { enWordCategories } from '../../data/WordCategories';
+import { CommonActions } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 const image = require('../../assets/Background.png')
 
@@ -21,23 +25,24 @@ const LobbyPage = (props) => {
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
 
+    // Redux Store-State Variables
+    const roomCode = useSelector(state => state.room.roomCode);
+    const users = useSelector(state => state.room.users);
+    const gameTimeLength = useSelector(state => state.room.roomData.gameTimeLength);
+    const gameDifficulty = useSelector(state => state.room.roomData.gameDifficulty);
+    const server = useSelector(state => state.room.roomData.server);
+    const me = useSelector(state => state.room.me);
+    const msg = useSelector(state => state.room.roomData.msg);
+    const categories = useSelector(state => state.room.roomData.wordCategories);
+
     // Stateful Variables
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoading2, setIsLoading2] = useState(false);
     const [myPlayer, setMyPlayer] = useState(null);
     const [visible, setVisible] = useState(false);
     const [modalType, setModalType] = useState('');
     const [serverTag, setServerTag] = useState('');
     const [modalData, setModalData] = useState({});
-
-    // Redux Store-State Variables
-    const roomCode = useSelector(state => state.room.roomCode);
-    const users = useSelector(state => state.room.users);
-    const phase = useSelector(state => state.room.phase);
-    const gameTimeLength = useSelector(state => state.room.gameTimeLength);
-    const gameDifficulty = useSelector(state => state.room.gameDifficulty);
-    const server = useSelector(state => state.room.server);
-    const me = useSelector(state => state.room.me);
-    const msg = useSelector(state => state.room.msg);
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -76,13 +81,13 @@ const LobbyPage = (props) => {
 
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && (users.length) && phase && gameTimeLength && gameDifficulty && msg) {
+        if (roomCode && users && (users.length) && gameTimeLength && gameDifficulty && categories.length) {
             setIsLoading(false)
         }
         else {
             setIsLoading(true)
         }
-    }, [roomCode, users, phase, gameTimeLength, gameDifficulty])
+    }, [roomCode, users, gameTimeLength, gameDifficulty, categories])
 
     // get my player model
     useEffect(() => {
@@ -94,6 +99,27 @@ const LobbyPage = (props) => {
             setMyPlayer(temp)
         }
     }, [users])
+
+    useEffect(() => {
+        // check if I have been assigned a role. If I have, route me to next screen
+        if (me && users && users.length && !isLoading) {
+            for (let i = 0; i < users.length; ++i) {
+                const role = users[i].role
+                if (users[i].username === me && role) {
+                    if (role === 'game-master') {
+                        props.navigation.dispatch(
+                            CommonActions.reset({
+                                index: 1,
+                                routes: [
+                                    { name: 'GMWait' }
+                                ]
+                            })
+                        )
+                    }
+                }
+            }
+        }
+    }, [users, isLoading])
 
     // message handlers
     useEffect(() => {
@@ -220,7 +246,13 @@ const LobbyPage = (props) => {
 
     // start game by assigning roles to players
     const startGameHandler = async () => {
+        setIsLoading2(true)
         await api.gameSetup(roomCode);
+        setIsLoading2(false)
+    }
+
+    const setCategories = async (tempCategories) => {
+        await api.updateCategories(roomCode, tempCategories)
     }
 
     // --------------------------------------------------------------
@@ -287,6 +319,59 @@ const LobbyPage = (props) => {
                     </TouchableOpacity>
                 )
             }
+
+            case 'gameSettingsEdit': {
+
+                // Need to keep local copy and update functions here for performance
+                let localCategories = categories
+
+                const updateLocal = (items) => {
+                    localCategories = items
+                }
+
+                const callSetCategories = async () => {
+                    setCategories(localCategories)
+                }
+
+                // special modal closer to ensure catagories are saved
+                const closeHandlerGS = async () => {
+                    setCategories(localCategories)
+                    setVisible(false)
+                    setModalData({})
+                    setModalType('')
+                }
+
+                const dropDownText = (localCategories.length === 1) ? 'item has' : 'items have';
+
+                return (
+                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandlerGS}>
+                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                            <View style={styles.modalBodyGameSettings}>
+                                <Text style={styles.modalPlayerText}>Game Settings</Text>
+                                <View style={styles.marginLrg} />
+                                <Text style={styles.smallText}>Select Word Categories: </Text>
+                                <View style={styles.marginSml} />
+                                <DropDownPicker
+                                    items={enWordCategories}
+                                    defaultValue={categories}
+                                    containerStyle={styles.dropdownStyle}
+                                    style={styles.primaryDropdown}
+                                    itemStyle={DropdownStyles.dropdownItem}
+                                    dropDownStyle={DropdownStyles.dropdownItemContainer}
+                                    onChangeItem={items => updateLocal(items)}
+                                    globalTextStyle={DropdownStyles.dropdownSelectedText}
+                                    dropDownMaxHeight={height * .25}
+                                    activeLabelStyle={DropdownStyles.dropdownSelectedItem}
+                                    multiple={true}
+                                    multipleText={"%d " + dropDownText + " been selected."}
+                                    min={1}
+                                    onClose={callSetCategories}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                )
+            }
             default: {
                 return (
                     <View />
@@ -295,9 +380,14 @@ const LobbyPage = (props) => {
         }
     }
 
-    // button shows as ready for non-hosts
+    // button shows as 'ready' button for non-hosts
     // button only displays for host when everyone else is ready
     const GameButton = () => {
+
+        if (isLoading2) {
+            return (<ActivityIndicator size={'small'} color={'black'} style={styles.loadingSml} />)
+        }
+
         if (isHost()) {
 
             if (isEveryoneReady()) {
@@ -374,7 +464,7 @@ const LobbyPage = (props) => {
                     </View>
 
                     <View style={styles.sideContainer}>
-                        <TouchableOpacity style={styles.sideButton}>
+                        <TouchableOpacity style={styles.sideButton} onPress={openGameSettingsModal}>
                             <Text style={styles.sideTitle}>Game Settings</Text>
                         </TouchableOpacity>
                     </View>

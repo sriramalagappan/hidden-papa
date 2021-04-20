@@ -129,6 +129,24 @@ export default StyleSheet.create({
         alignItems: 'center'
     },
 
+    modalBodyGameSettings: {
+        ...Platform.select({
+            ios: {
+                padding: 10,
+                height: height * .8,
+                width: width * .8,
+                alignItems: 'center',
+            },
+            android: {
+                padding: 24,
+                height: height * .8,
+                width: width * .8,
+                alignItems: 'center',
+            },
+        }),
+        alignItems: 'center'
+    },
+
     modalRow: {
         flexDirection: 'row',
     },
@@ -158,5 +176,23 @@ export default StyleSheet.create({
     kick: {
         color: 'red',
         fontFamily: 'bold'
+    },
+    smallText: {
+        fontFamily: 'thin',
+        fontSize: 15,
+    },
+    dropdownStyle: {
+        height: height * .06,
+        width: width * .7,
+    },
+    primaryDropdown: {
+        backgroundColor: 'white', 
+        borderColor: 'black',
+        borderRightWidth: 0,
+        borderTopWidth: 0,
+        borderLeftWidth: 0,
+    },
+    loadingSml: {
+        marginTop: height * .05,
     }
 });

@@ -52,11 +52,7 @@ export const updateRoomData = (data) => {
         try {
             dispatch({
                 type: UPDATE_ROOM_DATA,
-                phase: data.phase,
-                gameTimeLength: data.gameTimeLength,
-                gameDifficulty: data.gameDifficulty,
-                server: data.server,
-                msg: data.msg,
+                roomData: data,
             })
         } catch (err) {
             console.log(err)

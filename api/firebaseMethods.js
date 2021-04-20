@@ -1,6 +1,8 @@
 import firebase from "firebase";
 import { Alert } from "react-native";
 import firebaseConfigKorea from '../secrets/keys';
+import { defaultENWordCategories } from '../data/WordCategories';
+import { ENWords } from '../data/Words';
 // import ENwords from '../data/en-words';
 
 export const init = () => {
@@ -36,6 +38,7 @@ export const createRoom = async (roomCode, username, avatar, server) => {
                 server,
                 msg: { type: '', to: '' },
                 kicked: [],
+                wordCategories: defaultENWordCategories,
                 roomState: 'open'
             });
 
@@ -80,14 +83,6 @@ export const joinRoom = async (roomCode, username, avatar, server) => {
             }
         })
 
-        // Check if game is in progress
-        await roomRef.get().then((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                console.log(data)
-            }
-        })
-
         // Check if dup username, then throw error
         if (users.indexOf(username) !== -1) {
             throw "The username, " + username + ", has already been taken. Please enter a new username";
@@ -119,61 +114,6 @@ export const checkRoom = async (code) => {
         const snapshot = await db.collection("rooms").get()
         const rooms = snapshot.docs.map(doc => doc.id)
         return (rooms.indexOf(code) === -1)
-    } catch (err) {
-        const errorMessage = err.message;
-        console.log(errorMessage);
-        throw err;
-    }
-}
-
-export const roomListener = async (roomCode, onChange) => {
-    try {
-        // NEED TO REMOVE LOGIN
-        init();
-        await login();
-        const db = firebase.firestore();
-        const listener = db.collection('rooms').doc(roomCode)
-            .onSnapshot((doc) => {
-                // execute onChange function provided given new data
-                onChange(doc.data());
-            }, (error) => {
-                console.log(error);
-                throw error;
-            });
-        return listener
-    } catch (err) {
-        const errorMessage = err.message;
-        console.log(errorMessage);
-        throw err;
-    }
-}
-
-export const usersListener = async (roomCode, onChange) => {
-    try {
-        // NEED TO REMOVE LOGIN
-        init();
-        await login();
-        const db = firebase.firestore();
-        const listener = db.collection('rooms').doc(roomCode).collection('users')
-            .onSnapshot((querySnapshot) => {
-                let users = [];
-                querySnapshot.forEach((doc) => {
-                    users.push(doc.data());
-                })
-                users.sort(function (a, b) {
-                    let tempA = a.username.toUpperCase();
-                    let tempB = b.username.toUpperCase();
-
-                    if (tempA < tempB || a.isHost) return -1;
-                    if (tempA > tempB || b.isHost) return 1;
-                    return 0;
-                })
-                onChange(users)
-            }, (error) => {
-                console.log(error);
-                throw error;
-            });
-        return listener
     } catch (err) {
         const errorMessage = err.message;
         console.log(errorMessage);
@@ -247,8 +187,11 @@ export const gameSetup = async (roomCode) => {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
 
-        // set room state to game-started
-        await roomRef.set({ roomState: 'game-started' }, { merge: true });
+        // set room state to game-started and update time
+        await roomRef.set({
+            roomState: 'game-started',
+            latestActionTime: Date.now(),
+        }, { merge: true });
 
         // get users
         const userSnapshot = await roomRef.collection("users").get();
@@ -264,8 +207,42 @@ export const gameSetup = async (roomCode) => {
             const username = users[roles.length];
             // assign role to player
             const userRef = roomRef.collection('users').doc(username);
+            // set player states back to not ready
             await userRef.set({ role }, { merge: true });
         }
+
+        let categories = []
+
+        // Get categories
+        await roomRef.get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                categories = [...data.wordCategories]
+            }
+        })
+
+        // get subset of words given categories
+        let words = ENWords.filter(word => categories.indexOf(word.category) !== -1)
+
+        // select three unique words randomly
+        const firstWord = words[Math.floor((Math.random() * words.length))].text;
+        let secondWord = words[Math.floor((Math.random() * words.length))].text;
+        while (secondWord === firstWord) {
+            secondWord = words[Math.floor((Math.random() * words.length))].text;
+        }
+        let thirdWord = words[Math.floor((Math.random() * words.length))].text;
+        while (thirdWord === firstWord || thirdWord === secondWord) {
+            thirdWord = words[Math.floor((Math.random() * words.length))].text;
+        }
+
+        const wordChoices = [firstWord, secondWord, thirdWord]
+
+        // set words
+        await roomRef.collection("game")
+            .doc('words').set({
+                wordChoices
+            })
+
 
     } catch (err) {
         const errorMessage = err.message;
@@ -292,18 +269,20 @@ const createRoles = (len) => {
     return result;
 }
 
-// export const setEnWords = async () => {
-//     try {
-//         const db = firebase.firestore();
-//         db.collection("en-words")
-//             .doc()
-//             .set({
-//                 ENwords,
-//             });
-//     } catch (err) {
-//         Alert.alert("Sorry, something went wrong. Please try again", err.message);
-//     }
-// }
+export const updateCategories = async (roomCode, wordCategories) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        await roomRef.set({
+            wordCategories,
+        }, { merge: true });
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
 
 export const logout = async () => {
     try {
@@ -313,13 +292,84 @@ export const logout = async () => {
     }
 }
 
+// ---------------------------------- LISTENERS ----------------------------------
 
-        // await roomRef.get().then((doc) => {
-        //     if (doc.exists) {
-        //         const data = doc.data()
-        //         //console.log(data);
-        //         //userData = data.users.slice();
-        //     } else {
-        //         throw "We could not find a room with the given room code. Please check the code and server location and try again"
-        //     }
-        // })
+export const roomListener = async (roomCode, onChange) => {
+    try {
+        // NEED TO REMOVE LOGIN
+        init();
+        await login();
+        const db = firebase.firestore();
+        const listener = db.collection('rooms').doc(roomCode)
+            .onSnapshot((doc) => {
+                // execute onChange function provided given new data
+                onChange(doc.data());
+            }, (error) => {
+                console.log(error);
+                throw error;
+            });
+        return listener
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
+export const usersListener = async (roomCode, onChange) => {
+    try {
+        // NEED TO REMOVE LOGIN
+        init();
+        await login();
+        const db = firebase.firestore();
+        const listener = db.collection('rooms').doc(roomCode).collection('users')
+            .onSnapshot((querySnapshot) => {
+                let users = [];
+                querySnapshot.forEach((doc) => {
+                    users.push(doc.data());
+                })
+                users.sort(function (a, b) {
+                    let tempA = a.username.toUpperCase();
+                    let tempB = b.username.toUpperCase();
+
+                    if (tempA < tempB || a.isHost) return -1;
+                    if (tempA > tempB || b.isHost) return 1;
+                    return 0;
+                })
+                onChange(users)
+            }, (error) => {
+                console.log(error);
+                throw error;
+            });
+        return listener
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
+export const gameListener = async (roomCode, onChange) => {
+    try {
+        // NEED TO REMOVE LOGIN
+        init();
+        await login();
+        const db = firebase.firestore();
+        const listener = db.collection('rooms').doc(roomCode).collection('game')
+            .onSnapshot((querySnapshot) => {
+                let gameData = {};
+                querySnapshot.forEach((doc) => {
+                    gameData[doc.id] = doc.data();
+                })
+                onChange(gameData)
+            }, (error) => {
+                console.log(error);
+                throw error;
+            });
+        return listener
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
