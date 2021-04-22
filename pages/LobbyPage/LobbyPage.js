@@ -115,6 +115,15 @@ const LobbyPage = (props) => {
                                 ]
                             })
                         )
+                    } else if (role === 'hidden-papa') {
+                        props.navigation.dispatch(
+                            CommonActions.reset({
+                                index: 1,
+                                routes: [
+                                    { name: 'HPWait' }
+                                ]
+                            })
+                        )
                     }
                 }
             }
@@ -272,24 +281,6 @@ const LobbyPage = (props) => {
 
     const ModalComponent = () => {
         switch (modalType) {
-            // case 'back': {
-            //     return (
-            //         <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
-            //             <TouchableOpacity style={styles.modal} activeOpacity={1}>
-            //                 <View style={styles.modalBody}>
-            //                     <View style={styles.modalMessageContainer}>
-            //                         <Text style={styles.modalMessage}>Are you sure you want to leave the lobby?
-            //                         If you are the host, everyone will be removed from the lobby.</Text>
-            //                     </View>
-            //                     <View style={styles.modalRow}>
-            //                         <SmallButton onPress={closeHandler}>No</SmallButton>
-            //                         <SmallButton onPress={routeHome}>Yes</SmallButton>
-            //                     </View>
-            //                 </View>
-            //             </TouchableOpacity>
-            //         </TouchableOpacity>
-            //     )
-            // }
             case 'player': {
 
                 const KickButton = (modalData.username !== me && isHost()) ?

@@ -9,37 +9,25 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
     },
-
     revealText: {
         fontFamily: 'bold',
         fontSize: 30,
     },
-
-    subtitle: {
-        fontFamily: 'regular',
-        fontSize: 20,
-        marginTop: height * .15
-    },
-
     roleText: {
         fontFamily: 'bold',
         fontSize: width * .065,
-        marginTop: height * .1,
     },
-
-    listContainer: {
-        height: height * .4,
-        width: width * .8,
-        alignItems: 'center'
-    },
-
     screen: {
         width: width,
         height: height,
     },
-
     smallText: {
         fontFamily: 'thin',
         fontSize: 20,
+    },
+    smallTextMargin: {
+        fontFamily: 'thin',
+        fontSize: 20,
+        marginTop: height * .05,
     },
 });

@@ -10,7 +10,7 @@ import Button from '../../components/Button';
 
 const image = require('../../assets/Background.png');
 
-const GMWaitPage = () => {
+const HPWaitPage = () => {
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
@@ -40,14 +40,6 @@ const GMWaitPage = () => {
             setMyPlayer(temp)
         }
     }, [users])
-
-    // determine if everyone else is ready
-    const isEveryoneReady = () => {
-        for (let i = 0; i < users.length; ++i) {
-            if (!users[i].isReady && users[i].username != myPlayer.username) return false;
-        }
-        return true;
-    }
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -98,26 +90,27 @@ const GMWaitPage = () => {
     // set isLoading to false once we received all data
     useEffect(() => {
         if (roomCode && users && users.length && wordChoices.length) {
-            setIsLoading(false)
+            setIsLoading(false);
         }
         else {
-            setIsLoading(true)
+            setIsLoading(true);
         }
     }, [roomCode, users, wordChoices])
 
-    const selectWord = async (word) => {
-        setIsLoading2(true);
-        await api.selectWord(roomCode, word);
-        setIsLoading2(false);
+    // determine if I'm ready
+    const isReady = () => {
+        return (myPlayer && myPlayer.isReady);
     }
 
-    const renderWord = (itemData) => (
-        <View key={itemData.item} style={styles.wordContainer}>
-            <Button onPress={() => {selectWord(itemData.item)}} isLoading={isLoading2}>
-                <Text>{itemData.item}</Text>
-            </Button>
-        </View>
-    )
+    // tell room / server I'm ready
+    const readyHandler = async () => {
+        if (!myPlayer) return;
+        setIsLoading2(true);
+        let newData = myPlayer;
+        newData.isReady = true;
+        await api.updateUser(roomCode, me, newData);
+        setIsLoading2(false);
+    }
 
     if (isLoading) {
         return (
@@ -145,8 +138,12 @@ const GMWaitPage = () => {
         return (
             <View style={styles.container}>
                 <ImageBackground source={image} style={ImageStyles.background}>
-                    <Text style={styles.revealText}>Word: {word}</Text>
-                    <Text style={styles.smallText}>Waiting for everyone else to be ready...</Text>
+                    <Text style={styles.roleText}>You are the Hidden Papa</Text>
+                    <Text style={styles.smallText}>Word: {word}</Text>
+                    {isReady() ?
+                        (<Text style={styles.smallTextMargin}>Waiting for everyone else to be ready...</Text>)
+                        : (<Button onPress={readyHandler} isLoading={isLoading2}>Ready?</Button>)
+                    }
                 </ImageBackground>
             </View>
         )
@@ -154,21 +151,12 @@ const GMWaitPage = () => {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
-                <Text style={styles.roleText}>You are the Game Master</Text>
-                <Text style={styles.subtitle}>Select a word</Text>
-                <View style={styles.listContainer}>
-                    <FlatList
-                        data={wordChoices}
-                        renderItem={renderWord}
-                        keyExtractor={(word, index) => index.toString()}
-                        numColumns={1}
-                        scrollEnabled={true}
-                    />
-                </View>
+            <ImageBackground source={image} style={ImageStyles.background}>
+                <Text style={styles.roleText}>You are the Hidden Papa</Text>
+                <Text style={styles.smallText}>Waiting for the game master to select a word</Text>
             </ImageBackground>
         </View>
     );
 }
 
-export default GMWaitPage
+export default HPWaitPage

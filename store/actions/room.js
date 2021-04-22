@@ -5,6 +5,7 @@ import { Alert } from "react-native";
 export const JOIN_ROOM = 'JOIN_ROOM';
 export const UPDATE_ROOM_DATA = 'UPDATE_ROOM_DATA';
 export const UPDATE_USERS_DATA = 'UPDATE_USERS_DATA';
+export const UPDATE_GAME_DATA = 'UPDATE_GAME_DATA';
 export const RESET_ROOM = 'RESET_ROOM';
 
 export const createRoom = (roomCode, username, server) => {
@@ -66,6 +67,19 @@ export const updateUsersData = (users) => {
             dispatch({
                 type: UPDATE_USERS_DATA,
                 users,
+            })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+}
+
+export const updateGameData = (gameData) => {
+    return async dispatch => {
+        try {
+            dispatch({
+                type: UPDATE_GAME_DATA,
+                gameData,
             })
         } catch (err) {
             console.log(err)

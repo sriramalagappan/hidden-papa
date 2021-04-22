@@ -284,6 +284,23 @@ export const updateCategories = async (roomCode, wordCategories) => {
     }
 }
 
+export const selectWord = async (roomCode, word) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        // set words
+        await roomRef.collection("game").doc('words').set({
+            word,
+        }, {merge: true});
+
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
 export const logout = async () => {
     try {
         await firebase.auth().signOut();

@@ -12,9 +12,11 @@ const Button = props => {
 
     const buttonContainerStyle = (props.border) ? styles.containerBorder : styles.container
 
+    const onPress = (props.isLoading) ? (() => {}) : props.onPress;
+
     return (
         <View style={buttonContainerStyle}>
-            <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={props.onPress}>
+            <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={onPress}>
                 <View style={{ ...styles.button, ...props.style }}>
                     {props.isLoading ?
                         (
