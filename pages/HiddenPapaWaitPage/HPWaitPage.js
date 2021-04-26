@@ -78,6 +78,7 @@ const HPWaitPage = () => {
             // detach room listener
             if (roomListener) roomListener();
             if (usersListener) usersListener();
+            if (gameListener) gameListener();
         })
     }, [roomCode])
 

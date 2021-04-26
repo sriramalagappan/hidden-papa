@@ -13,7 +13,8 @@ import LobbyPage from '../pages/LobbyPage/LobbyPage';
 import GMWaitPage from '../pages/GameMasterWaitPage/GMWaitPage';
 import HPWaitPage from '../pages/HiddenPapaWaitPage/HPWaitPage';
 import GuesserWaitPage from '../pages/GuesserWaitPage/GuesserWaitPage';
-
+import GMGamePage from '../pages/GameMasterGamePage/GMGamePage';
+import GuessPage from '../pages/GuessPage/GuessPage';
 
 const MainNavigator = () => {
 
@@ -161,6 +162,28 @@ const MainNavigator = () => {
                 <Stack.Screen
                     name="GuesserWait"
                     component={GuesserWaitPage}
+                    options={{
+                        headerShown: false,
+                        cardStyle: {
+                            backgroundColor: colors.primary,
+                            opacity: 1,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="GMGame"
+                    component={GMGamePage}
+                    options={{
+                        headerShown: false,
+                        cardStyle: {
+                            backgroundColor: colors.primary,
+                            opacity: 1,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="Guess"
+                    component={GuessPage}
                     options={{
                         headerShown: false,
                         cardStyle: {

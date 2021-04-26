@@ -8,8 +8,7 @@ import { CommonActions } from '@react-navigation/native';
 import Button from '../../components/Button';
 import Background from '../../components/Background';
 
-
-const GMWaitPage = () => {
+const GMWaitPage = (props) => {
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
@@ -19,6 +18,7 @@ const GMWaitPage = () => {
     const me = useSelector(state => state.room.me);
     const users = useSelector(state => state.room.users);
     const gameData = useSelector(state => state.room.gameData);
+    const settings = useSelector(state => state.room.gameData.settings);
 
     const wordChoices = (gameData && gameData.words) ? gameData.words.wordChoices : [];
     const word = (gameData && gameData.words) ? gameData.words.word : '';
@@ -28,32 +28,6 @@ const GMWaitPage = () => {
     const [isLoading2, setIsLoading2] = useState(false);
     const [reveal, setReveal] = useState(false);
     const [myPlayer, setMyPlayer] = useState(null);
-
-    // get my player model
-    useEffect(() => {
-        if (users && users.length) {
-            let temp = null
-            for (let i = 0; i < users.length; ++i) {
-                if (users[i].username === me) temp = users[i];
-            }
-            setMyPlayer(temp)
-        }
-    }, [users])
-
-    // determine if everyone else is ready
-    useEffect(() => {
-        const isEveryoneReady = () => {
-            for (let i = 0; i < users.length; ++i) {
-                if (!users[i].isReady && users[i].username !== me) return false;
-            }
-            return true;
-        }
-
-        // if everyone is ready, setup game and route all users to game screen
-        if (users && users.length && me && isEveryoneReady()) {
-            console.log('here')
-        }
-    }, [users, me])
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -94,8 +68,57 @@ const GMWaitPage = () => {
             // detach room listener
             if (roomListener) roomListener();
             if (usersListener) usersListener();
+            if (gameListener) gameListener();
         })
     }, [roomCode])
+
+    // get my player model
+    useEffect(() => {
+        if (users && users.length) {
+            let temp = null
+            for (let i = 0; i < users.length; ++i) {
+                if (users[i].username === me) temp = users[i];
+            }
+            setMyPlayer(temp)
+        }
+    }, [users])
+
+    // determine if everyone else is ready
+    useEffect(() => {
+        const isEveryoneReady = () => {
+            for (let i = 0; i < users.length; ++i) {
+                if (!users[i].isReady && users[i].username !== me) return false;
+            }
+            return true;
+        }
+
+        const gameStart = async () => {
+            await api.startGame(roomCode);
+        }
+
+        // if everyone is ready, setup game and route all users to game screen
+        if (users && users.length && me && isEveryoneReady()) {
+            setIsLoading(true)
+            try {
+                gameStart();
+            } catch (err) {
+                setIsLoading(false)
+            }
+        }
+    }, [users, me])
+
+    useEffect(() => {
+        if (settings) {
+            props.navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                        { name: 'GMGame' }
+                    ]
+                })
+            )
+        }
+    }, [settings])
 
     // set isLoading to false once we received all data
     useEffect(() => {
@@ -151,7 +174,6 @@ const GMWaitPage = () => {
                     <Text style={styles.smallText}>Word: {word}</Text>
                     <Text style={styles.smallTextMargin}>You may now reveal yourself</Text>
                     <Text style={styles.smallText}>Waiting for everyone else to be ready...</Text>
-
                 </Background>
             </View>
         )

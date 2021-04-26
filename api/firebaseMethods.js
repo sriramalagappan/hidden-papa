@@ -3,7 +3,6 @@ import { Alert } from "react-native";
 import firebaseConfigKorea from '../secrets/keys';
 import { defaultENWordCategories } from '../data/WordCategories';
 import { ENWords } from '../data/Words';
-import clockSync from 'react-native-clock-sync'
 // import ENwords from '../data/en-words';
 
 export const init = () => {
@@ -208,8 +207,7 @@ export const gameSetup = async (roomCode) => {
             const username = users[roles.length];
             // assign role to player
             const userRef = roomRef.collection('users').doc(username);
-            // set player states back to not ready
-            await userRef.set({ role }, { merge: true });
+            await userRef.set({ role, isReady: false, }, { merge: true });
         }
 
         let categories = []
@@ -252,24 +250,6 @@ export const gameSetup = async (roomCode) => {
     }
 }
 
-const insert = (array, index, elem) => {
-    array.splice(index, 0, elem)
-}
-
-const createRoles = (len) => {
-    const result = [];
-    for (let i = 0; i < len - 2; ++i) {
-        result.push('guesser');
-    }
-    // place game master role somewhere random in array
-    const gmIndex = Math.floor((Math.random() * len - 1));
-    insert(result, gmIndex, 'game-master');
-    // place hidden papa role somewhere random in array
-    const hpIndex = Math.floor((Math.random() * len));
-    insert(result, hpIndex, 'hidden-papa');
-    return result;
-}
-
 export const updateCategories = async (roomCode, wordCategories) => {
     try {
         const db = firebase.firestore();
@@ -293,7 +273,7 @@ export const selectWord = async (roomCode, word) => {
         // set words
         await roomRef.collection("game").doc('words').set({
             word,
-        }, {merge: true});
+        }, { merge: true });
 
     } catch (err) {
         const errorMessage = err.message;
@@ -310,12 +290,45 @@ export const logout = async () => {
     }
 }
 
-export const startGame = async () => {
+export const startGame = async (roomCode) => {
     try {
-        const options = {};
-        const clock = new clockSync(options);
-        const currentTime = clock.getTime();
-        console.log(currentTime);
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        // set room state to guessing and update time
+        await roomRef.set({
+            roomState: 'guessing',
+            latestActionTime: Date.now(),
+        }, { merge: true });
+
+        // get users
+        const userSnapshot = await roomRef.collection("users").get();
+        const users = userSnapshot.docs.map(doc => doc.id);
+
+        // set player states back to not ready
+        // for (let i = 0; i < users.length; ++i) {
+        //     const username = users[i];
+        //     const userRef = roomRef.collection('users').doc(username);
+        //     await userRef.set({ isReady: false, }, { merge: true });
+        // }
+
+        let gameTimeLength;
+        await roomRef.get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                // default to 5 minutes
+                gameTimeLength = (data.gameTimeLength) ? data.gameTimeLength : 300000
+            }
+        });
+
+        // set game end timestamp
+        await roomRef.collection("game")
+            .doc('settings').set({
+                // add 5 sec as padding for potential lag
+                startTime: Date.now() + 5000,
+                endTime: Date.now() + gameTimeLength + 5000
+            });
+
     } catch (err) {
         const errorMessage = err.message;
         console.log(errorMessage);
@@ -403,4 +416,22 @@ export const gameListener = async (roomCode, onChange) => {
         console.log(errorMessage);
         throw err;
     }
+}
+
+const insert = (array, index, elem) => {
+    array.splice(index, 0, elem)
+}
+
+const createRoles = (len) => {
+    const result = [];
+    for (let i = 0; i < len - 2; ++i) {
+        result.push('guesser');
+    }
+    // place game master role somewhere random in array
+    const gmIndex = Math.floor((Math.random() * len - 1));
+    insert(result, gmIndex, 'game-master');
+    // place hidden papa role somewhere random in array
+    const hpIndex = Math.floor((Math.random() * len));
+    insert(result, hpIndex, 'hidden-papa');
+    return result;
 }

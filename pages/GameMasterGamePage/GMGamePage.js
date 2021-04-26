@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
 import styles from './styles';
+import Background from '../../components/Background';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
-import Button from '../../components/Button';
-import Background from '../../components/Background';
 
-const HPWaitPage = (props) => {
+const GMGamePage = (props) => {
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
@@ -17,13 +16,23 @@ const HPWaitPage = (props) => {
     const roomCode = useSelector(state => state.room.roomCode);
     const me = useSelector(state => state.room.me);
     const users = useSelector(state => state.room.users);
+    const gameData = useSelector(state => state.room.gameData);
     const settings = useSelector(state => state.room.gameData.settings);
+
+    const word = (gameData && gameData.words) ? gameData.words.word : '';
 
     // Stateful Variables
     const [isLoading, setIsLoading] = useState(true);
-    const [isLoading2, setIsLoading2] = useState(false);
-    const [reveal, setReveal] = useState(false);
     const [myPlayer, setMyPlayer] = useState(null);
+    const [startCounter, setStartCounter] = useState(null);
+    const [sCountSet, setSCountSet] = useState(false);
+
+    // TODO: Remove later. Use this to reset game time to current
+    const REMOVE = async () => {
+        if (roomCode) {
+            await api.startGame(roomCode)
+        }
+    }
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -47,17 +56,17 @@ const HPWaitPage = (props) => {
 
     // get listener for room on mount (and only if roomCode is given)
     useEffect(() => {
-        let roomListener = null
-        let usersListener = null
-        let gameListener = null
+        let roomListener = null;
+        let usersListener = null;
+        let gameListener = null;
 
         const getListeners = async () => {
-            roomListener = await api.roomListener(roomCode, updateRoomState)
-            usersListener = await api.usersListener(roomCode, updateUsersState)
-            gameListener = await api.gameListener(roomCode, updateGameState)
+            roomListener = await api.roomListener(roomCode, updateRoomState);
+            usersListener = await api.usersListener(roomCode, updateUsersState);
+            gameListener = await api.gameListener(roomCode, updateGameState);
         }
         if (roomCode) {
-            getListeners()
+            getListeners();
         }
 
         return (() => {
@@ -66,7 +75,8 @@ const HPWaitPage = (props) => {
             if (usersListener) usersListener();
             if (gameListener) gameListener();
         })
-    }, [roomCode])
+    }, [roomCode]);
+    
 
     // get my player model
     useEffect(() => {
@@ -77,45 +87,33 @@ const HPWaitPage = (props) => {
             }
             setMyPlayer(temp)
         }
-    }, [users])
+
+        REMOVE();
+        setSCountSet(false)
+    }, [users]);
+
+    useEffect(() => {
+        if (settings && !sCountSet) {
+            setSCountSet(true);
+            setStartCounter(Math.floor((settings.startTime - Date.now()) / 1000));
+        }
+    }, [settings]);
+
+    useEffect(() => {
+        if (startCounter) {
+            startCounter > 0 && setTimeout(() => setStartCounter(startCounter - 1), 1000);
+        }
+    }, [startCounter]);
 
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && users.length) {
+        if (roomCode && users && users.length && word && gameData && settings) {
             setIsLoading(false);
         }
         else {
             setIsLoading(true);
         }
-    }, [roomCode, users])
-
-    useEffect(() => {
-        if (settings) {
-            props.navigation.dispatch(
-                CommonActions.reset({
-                    index: 1,
-                    routes: [
-                        { name: 'Guess' }
-                    ]
-                })
-            )
-        }
-    }, [settings]) 
-
-    // determine if I'm ready
-    const isReady = () => {
-        return (myPlayer && myPlayer.isReady);
-    }
-
-    // tell room / server I'm ready
-    const readyHandler = async () => {
-        if (!myPlayer) return;
-        setIsLoading2(true);
-        let newData = myPlayer;
-        newData.isReady = true;
-        await api.updateUser(roomCode, me, newData);
-        setIsLoading2(false);
-    }
+    }, [roomCode, users, gameData, settings, startCounter]);
 
     if (isLoading) {
         return (
@@ -127,29 +125,22 @@ const HPWaitPage = (props) => {
         )
     }
 
-    if (!reveal) {
+    if (startCounter > 0) {
         return (
             <View style={styles.container}>
-                <TouchableOpacity activeOpacity={1} onPress={() => { setReveal(true) }}>
-                    <Background justify={true}>
-                        <Text style={styles.revealText}>Tap to reveal your role</Text>
-                    </Background>
-                </TouchableOpacity>
-            </View >
+                <Background justify={true}>
+                    <Text style={styles.countdown}>{startCounter}</Text>
+                </Background>
+            </View>
         )
     }
 
     return (
         <View style={styles.container}>
-            <Background justify={true}>
-                <Text style={styles.roleText}>You are a Guesser</Text>
-                {isReady() ?
-                    (<Text style={styles.smallTextMargin}>Waiting for everyone else to be ready...</Text>)
-                    : (<Button onPress={readyHandler} isLoading={isLoading2}>Ready?</Button>)
-                }
+            <Background justify={false}>
             </Background>
         </View>
-    )
+    );
 }
 
-export default HPWaitPage
+export default GMGamePage
