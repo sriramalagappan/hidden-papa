@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, TouchableOpacity, FlatList, Text } from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
 import styles from './styles';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
@@ -19,25 +19,11 @@ const HPWaitPage = () => {
     const users = useSelector(state => state.room.users);
     const gameData = useSelector(state => state.room.gameData);
 
-    const wordChoices = (gameData && gameData.words) ? gameData.words.wordChoices : [];
-    const word = (gameData && gameData.words) ? gameData.words.word : '';
-
     // Stateful Variables
     const [isLoading, setIsLoading] = useState(true);
     const [isLoading2, setIsLoading2] = useState(false);
     const [reveal, setReveal] = useState(false);
     const [myPlayer, setMyPlayer] = useState(null);
-
-    // get my player model
-    useEffect(() => {
-        if (users && users.length) {
-            let temp = null
-            for (let i = 0; i < users.length; ++i) {
-                if (users[i].username === me) temp = users[i];
-            }
-            setMyPlayer(temp)
-        }
-    }, [users])
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -81,15 +67,26 @@ const HPWaitPage = () => {
         })
     }, [roomCode])
 
+    // get my player model
+    useEffect(() => {
+        if (users && users.length) {
+            let temp = null
+            for (let i = 0; i < users.length; ++i) {
+                if (users[i].username === me) temp = users[i];
+            }
+            setMyPlayer(temp)
+        }
+    }, [users])
+
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && users.length && wordChoices.length) {
+        if (roomCode && users && users.length) {
             setIsLoading(false);
         }
         else {
             setIsLoading(true);
         }
-    }, [roomCode, users, wordChoices])
+    }, [roomCode, users])
 
     // determine if I'm ready
     const isReady = () => {
@@ -128,29 +125,17 @@ const HPWaitPage = () => {
         )
     }
 
-    if (word) {
-        return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <Text style={styles.roleText}>You are the Hidden Papa</Text>
-                    <Text style={styles.smallText}>Word: {word}</Text>
-                    {isReady() ?
-                        (<Text style={styles.smallTextMargin}>Waiting for everyone else to be ready...</Text>)
-                        : (<Button onPress={readyHandler} isLoading={isLoading2}>Ready?</Button>)
-                    }
-                </Background>
-            </View>
-        )
-    }
-
     return (
         <View style={styles.container}>
             <Background justify={true}>
-                <Text style={styles.roleText}>You are the Hidden Papa</Text>
-                <Text style={styles.smallText}>Waiting for the game master to select a word</Text>
+                <Text style={styles.roleText}>You are a Guesser</Text>
+                {isReady() ?
+                    (<Text style={styles.smallTextMargin}>Waiting for everyone else to be ready...</Text>)
+                    : (<Button onPress={readyHandler} isLoading={isLoading2}>Ready?</Button>)
+                }
             </Background>
         </View>
-    );
+    )
 }
 
 export default HPWaitPage

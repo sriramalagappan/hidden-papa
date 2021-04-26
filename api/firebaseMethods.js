@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import firebaseConfigKorea from '../secrets/keys';
 import { defaultENWordCategories } from '../data/WordCategories';
 import { ENWords } from '../data/Words';
+import clockSync from 'react-native-clock-sync'
 // import ENwords from '../data/en-words';
 
 export const init = () => {
@@ -34,7 +35,7 @@ export const createRoom = async (roomCode, username, avatar, server) => {
                 latestActionTime: Date.now(),
                 gameDifficulty: 'normal',
                 gameTimeLength: 300000, // 5 minutes
-                phase: 'prep',
+                phase: 'lobby',
                 server,
                 msg: { type: '', to: '' },
                 kicked: [],
@@ -77,7 +78,7 @@ export const joinRoom = async (roomCode, username, avatar, server) => {
         await roomRef.get().then((doc) => {
             if (doc.exists) {
                 const data = doc.data();
-                if (data.roomState && data.roomState === 'game-started') {
+                if (data.roomState && data.roomState !== 'lobby') {
                     throw "The lobby is currently in a game. Please wait for the game to end and then try joining";
                 }
             }
@@ -189,7 +190,7 @@ export const gameSetup = async (roomCode) => {
 
         // set room state to game-started and update time
         await roomRef.set({
-            roomState: 'game-started',
+            roomState: 'word-selection',
             latestActionTime: Date.now(),
         }, { merge: true });
 
@@ -306,6 +307,19 @@ export const logout = async () => {
         await firebase.auth().signOut();
     } catch (err) {
         Alert.alert("Sorry, something went wrong. Please try again", err.message);
+    }
+}
+
+export const startGame = async () => {
+    try {
+        const options = {};
+        const clock = new clockSync(options);
+        const currentTime = clock.getTime();
+        console.log(currentTime);
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
     }
 }
 

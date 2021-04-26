@@ -1,17 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ImageBackground } from 'react-native';
 import styles from './styles';
-import { ImageStyles } from '../../theme/component-styles';
-
-const image = require('../../assets/Background.png');
+import Background from '../../components/Background';
 
 const Page = () => {
     
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
+            <Background justify={false}>
 
-            </ImageBackground>
+            </Background>
         </View>
     );}
 

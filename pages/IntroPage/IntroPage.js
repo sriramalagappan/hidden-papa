@@ -8,7 +8,6 @@ import { useDispatch } from 'react-redux'
 import { CommonActions } from '@react-navigation/native';
 
 const image = require('../../assets/HiddenPapaIntro.png')
-const backgroundImage = require('../../assets/Background.png')
 
 const IntroPage = (props) => {
 
@@ -37,7 +36,6 @@ const IntroPage = (props) => {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={backgroundImage} style={{ width: 0, height: 0 }} />
             <ImageBackground source={image} style={ImageStyles.background}>
                 <View style={styles.buttonContainer}>
                     <Button onPress={startHandler}>Start</Button>

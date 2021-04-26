@@ -1,18 +1,16 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import { View, ImageBackground, Dimensions, InteractionManager } from 'react-native';
+import { View, Dimensions, InteractionManager } from 'react-native';
 import styles from './styles';
-import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
+import { DropdownStyles } from '../../theme/component-styles';
 import * as avatarActions from '../../store/actions/avatar';
 import { useDispatch, useSelector } from 'react-redux'
 import BigHead from '../../components/BigHead';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Button from '../../components/Button'
-import colors from '../../theme/colors'
 import { useFocusEffect } from '@react-navigation/native';
+import Background from '../../components/Background';
 
 const height = Dimensions.get('window').height;
-
-const image = require('../../assets/Background.png')
 
 const AvatarPage = (props) => {
 
@@ -275,7 +273,7 @@ const AvatarPage = (props) => {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
+            <Background justify={false}>
                 <View style={styles.bigHeadContainer}>
                     <BigHead avatar={tempAvatar} size={250} />
                 </View>
@@ -311,7 +309,7 @@ const AvatarPage = (props) => {
                         <Button onPress={saveAvatar} border={true}>Save</Button>
                     </View>
                 </View>
-            </ImageBackground>
+            </Background>
         </View>
     );
 };

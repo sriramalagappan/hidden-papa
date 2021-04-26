@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, Dimensions, ActivityIndicator, TouchableOpacity, Text, FlatList, Modal, Alert } from 'react-native';
+import { View, Dimensions, ActivityIndicator, TouchableOpacity, Text, FlatList, Modal, Alert } from 'react-native';
 import styles from './styles';
 import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button';
@@ -14,11 +14,10 @@ import ServerLocations from '../../data/ServerLocations';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { enWordCategories } from '../../data/WordCategories';
 import { CommonActions } from '@react-navigation/native';
+import Background from '../../components/Background';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
-
-const image = require('../../assets/Background.png')
 
 const LobbyPage = (props) => {
 
@@ -121,6 +120,15 @@ const LobbyPage = (props) => {
                                 index: 1,
                                 routes: [
                                     { name: 'HPWait' }
+                                ]
+                            })
+                        )
+                    } else if (role === 'guesser') {
+                        props.navigation.dispatch(
+                            CommonActions.reset({
+                                index: 1,
+                                routes: [
+                                    { name: 'GuesserWait' }
                                 ]
                             })
                         )
@@ -409,15 +417,15 @@ const LobbyPage = (props) => {
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <ImageBackground source={image} style={ImageStyles.background}>
+                <Background justify={true}>
                     <ActivityIndicator color={"black"} size={100} />
-                </ImageBackground>
+                </Background>
             </View>
         )
     } else {
         return (
             <View style={styles.container}>
-                <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
+                <Background justify={false}>
 
                     <Modal
                         visible={visible}
@@ -462,7 +470,7 @@ const LobbyPage = (props) => {
                     <View style={styles.buttonContainer}>
                         <GameButton />
                     </View>
-                </ImageBackground>
+                </Background>
             </View>
         );
     }

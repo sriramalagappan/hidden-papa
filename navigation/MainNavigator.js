@@ -1,6 +1,9 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import colors from '../theme/colors'
+import { Ionicons } from '@expo/vector-icons';
+
 import IntroPage from '../pages/IntroPage/IntroPage';
 import HomePage from '../pages/HomePage/HomePage';
 import AvatarPage from '../pages/AvatarPage/AvatarPage';
@@ -9,8 +12,7 @@ import JoinRoomPage from '../pages/JoinRoomPage/JoinRoomPage';
 import LobbyPage from '../pages/LobbyPage/LobbyPage';
 import GMWaitPage from '../pages/GameMasterWaitPage/GMWaitPage';
 import HPWaitPage from '../pages/HiddenPapaWaitPage/HPWaitPage';
-import colors from '../theme/colors'
-import { Ionicons } from '@expo/vector-icons';
+import GuesserWaitPage from '../pages/GuesserWaitPage/GuesserWaitPage';
 
 
 const MainNavigator = () => {
@@ -148,6 +150,17 @@ const MainNavigator = () => {
                 <Stack.Screen
                     name="HPWait"
                     component={HPWaitPage}
+                    options={{
+                        headerShown: false,
+                        cardStyle: {
+                            backgroundColor: colors.primary,
+                            opacity: 1,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="GuesserWait"
+                    component={GuesserWaitPage}
                     options={{
                         headerShown: false,
                         cardStyle: {

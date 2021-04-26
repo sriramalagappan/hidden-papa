@@ -1,16 +1,14 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { View, ImageBackground, InteractionManager } from 'react-native';
+import { View, InteractionManager } from 'react-native';
 import styles from './styles';
 import HomeButtonLarge from '../../components/HomeButtonLarge'
 import HomeButtonSmall from '../../components/HomeButtonSmall'
 import HomeButtonAvatar from '../../components/HomeButtonAvatar'
-import { ImageStyles } from '../../theme/component-styles';
 import * as avatarActions from '../../store/actions/avatar';
 import * as roomActions from '../../store/actions/room';
 import { useDispatch, useSelector } from 'react-redux'
 import { useFocusEffect } from '@react-navigation/native';
-
-const image = require('../../assets/Background.png')
+import Background from '../../components/Background';
 
 const HomePage = (props) => {
 
@@ -65,7 +63,7 @@ const HomePage = (props) => {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.background}>
+            <Background justify={false}>
                 <View style={styles.margin} />
                 <HomeButtonLarge text={"Create a Room"} icon={"create-outline"} onPress={CreateRoomRoute} />
                 <HomeButtonLarge text={"Join a Room"} icon={"add-outline"} onPress={JoinRoomRoute} />
@@ -73,7 +71,7 @@ const HomePage = (props) => {
                     <HomeButtonAvatar avatar={avatarCopy} onPress={AvatarButtonHandler} />
                     <HomeButtonSmall text={"About"} icon={"information-circle-outline"} />
                 </View>
-            </ImageBackground>
+            </Background>
         </View>
     );
 };

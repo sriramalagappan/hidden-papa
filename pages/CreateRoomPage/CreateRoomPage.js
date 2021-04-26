@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, Dimensions, Alert } from 'react-native';
+import { View, Dimensions, Alert } from 'react-native';
 import styles from './styles';
 import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
@@ -10,6 +10,7 @@ import { init, login, checkRoom } from '../../api/firebaseMethods';
 import * as roomActions from '../../store/actions/room';
 import ServerLocations from '../../data/ServerLocations';
 import { CommonActions } from '@react-navigation/native';
+import Background from '../../components/Background';
 
 const height = Dimensions.get('window').height;
 
@@ -96,7 +97,7 @@ const CreateRoomPage = (props) => {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
+            <Background justify={false}>
                 <View style={styles.inputContainer}>
                     <Input
                         onChangeText={updateUsername}
@@ -128,7 +129,7 @@ const CreateRoomPage = (props) => {
                 <View style={styles.buttonContainer}>
                     <Button onPress={createRoomHandler} isLoading={isLoading}>Create Room</Button>
                 </View>
-            </ImageBackground>
+            </Background>
         </View>
     );
 };

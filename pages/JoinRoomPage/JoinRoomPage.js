@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, Dimensions, Alert, Text, Keyboard} from 'react-native';
+import { View, Dimensions, Alert, Text, Keyboard} from 'react-native';
 import styles from './styles';
-import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
+import { DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
 import { useDispatch, useSelector } from 'react-redux'
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -12,10 +12,9 @@ import * as api from '../../api/firebaseMethods';
 import ServerLocations from '../../data/ServerLocations';
 import CharacterInput from 'react-native-character-input'
 import { CommonActions } from '@react-navigation/native';
+import Background from '../../components/Background';
 
 const height = Dimensions.get('window').height;
-
-const image = require('../../assets/Background.png')
 
 const JoinRoomPage = (props) => {
 
@@ -85,7 +84,7 @@ const JoinRoomPage = (props) => {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
+            <Background justify={false}>
                 <View style={styles.roomCodeContainer}>
                     <Text style={styles.text}>Room Code: </Text>
                     <CharacterInput 
@@ -128,7 +127,7 @@ const JoinRoomPage = (props) => {
                 <View style={styles.buttonContainer}>
                     <Button onPress={joinRoomHandler} isLoading={isLoading}>Join Room</Button>
                 </View>
-            </ImageBackground>
+            </Background>
         </View>
     );
 };

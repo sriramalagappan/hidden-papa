@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, ActivityIndicator, TouchableOpacity, FlatList, Text } from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity, FlatList, Text } from 'react-native';
 import styles from './styles';
-import { ImageStyles } from '../../theme/component-styles';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
 import Button from '../../components/Button';
+import Background from '../../components/Background';
 
-const image = require('../../assets/Background.png');
 
 const GMWaitPage = () => {
 
@@ -42,12 +41,19 @@ const GMWaitPage = () => {
     }, [users])
 
     // determine if everyone else is ready
-    const isEveryoneReady = () => {
-        for (let i = 0; i < users.length; ++i) {
-            if (!users[i].isReady && users[i].username != myPlayer.username) return false;
+    useEffect(() => {
+        const isEveryoneReady = () => {
+            for (let i = 0; i < users.length; ++i) {
+                if (!users[i].isReady && users[i].username !== me) return false;
+            }
+            return true;
         }
-        return true;
-    }
+
+        // if everyone is ready, setup game and route all users to game screen
+        if (users && users.length && me && isEveryoneReady()) {
+            console.log('here')
+        }
+    }, [users, me])
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -65,10 +71,6 @@ const GMWaitPage = () => {
 
     const updateGameState = (data) => {
         if (data) {
-            // if (data.words) {
-            //     if (data.words.wordChoices) setWordChoices(data.words.wordChoices);
-            //     if (data.words.word) setWord(word)
-            // }
             dispatch(roomActions.updateGameData(data));
         }
     }
@@ -113,7 +115,7 @@ const GMWaitPage = () => {
 
     const renderWord = (itemData) => (
         <View key={itemData.item} style={styles.wordContainer}>
-            <Button onPress={() => {selectWord(itemData.item)}} isLoading={isLoading2}>
+            <Button onPress={() => { selectWord(itemData.item) }} isLoading={isLoading2}>
                 <Text>{itemData.item}</Text>
             </Button>
         </View>
@@ -122,9 +124,9 @@ const GMWaitPage = () => {
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <ImageBackground source={image} style={ImageStyles.background}>
+                <Background justify={true}>
                     <ActivityIndicator color={"black"} size={100} />
-                </ImageBackground>
+                </Background>
             </View>
         )
     }
@@ -133,9 +135,9 @@ const GMWaitPage = () => {
         return (
             <View style={styles.container}>
                 <TouchableOpacity activeOpacity={1} onPress={() => { setReveal(true) }}>
-                    <ImageBackground source={image} style={ImageStyles.background}>
+                    <Background justify={true}>
                         <Text style={styles.revealText}>Tap to reveal your role</Text>
-                    </ImageBackground>
+                    </Background>
                 </TouchableOpacity>
             </View >
         )
@@ -144,17 +146,20 @@ const GMWaitPage = () => {
     if (word) {
         return (
             <View style={styles.container}>
-                <ImageBackground source={image} style={ImageStyles.background}>
-                    <Text style={styles.revealText}>Word: {word}</Text>
+                <Background justify={true}>
+                    <Text style={styles.revealText}>You are the Game Master</Text>
+                    <Text style={styles.smallText}>Word: {word}</Text>
+                    <Text style={styles.smallTextMargin}>You may now reveal yourself</Text>
                     <Text style={styles.smallText}>Waiting for everyone else to be ready...</Text>
-                </ImageBackground>
+
+                </Background>
             </View>
         )
     }
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={image} style={ImageStyles.backgroundNoJustify}>
+            <Background justify={false}>
                 <Text style={styles.roleText}>You are the Game Master</Text>
                 <Text style={styles.subtitle}>Select a word</Text>
                 <View style={styles.listContainer}>
@@ -166,7 +171,7 @@ const GMWaitPage = () => {
                         scrollEnabled={true}
                     />
                 </View>
-            </ImageBackground>
+            </Background>
         </View>
     );
 }
