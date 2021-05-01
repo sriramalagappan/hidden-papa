@@ -11,16 +11,16 @@ const Background = (props) => {
     const backgroundStyle = (props.justify) ? styles.background : styles.backgroundNoJustify;
 
     return (
-        <LinearGradient  
+        <LinearGradient
             colors={[colors.primary, colors.primary_dark]}
             start={{
                 x: 0,
                 y: 0
-              }}
-              end={{
+            }}
+            end={{
                 x: 1,
                 y: 1
-              }}
+            }}
             style={backgroundStyle}
         >
             {props.children}

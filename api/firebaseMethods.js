@@ -325,8 +325,8 @@ export const startGame = async (roomCode) => {
         await roomRef.collection("game")
             .doc('settings').set({
                 // add 5 sec as padding for potential lag
-                startTime: Date.now() + 5000,
-                endTime: Date.now() + gameTimeLength + 5000
+                startTime: Date.now() + 6000,
+                endTime: Date.now() + gameTimeLength
             });
 
     } catch (err) {

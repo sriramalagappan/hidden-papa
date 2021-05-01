@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Text } from 'react-native';
+import React, { useEffect, useState, useReducer } from 'react';
+import { View, ActivityIndicator, Text, Dimensions, Modal } from 'react-native';
 import styles from './styles';
 import Background from '../../components/Background';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
+import CountDown from 'react-native-countdown-component';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Button from '../../components/Button';
+
+const width = Dimensions.get('window').width;
 
 const GMGamePage = (props) => {
 
@@ -25,7 +31,13 @@ const GMGamePage = (props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [myPlayer, setMyPlayer] = useState(null);
     const [startCounter, setStartCounter] = useState(null);
-    const [sCountSet, setSCountSet] = useState(false);
+    const [endCounter, setEndCounter] = useState(null);
+    const [countersSet, setCounterSet] = useState(false);
+    const [showWord, setShowWord] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [modalType, setModalType] = useState(false);
+
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
     // TODO: Remove later. Use this to reset game time to current
     const REMOVE = async () => {
@@ -76,7 +88,7 @@ const GMGamePage = (props) => {
             if (gameListener) gameListener();
         })
     }, [roomCode]);
-    
+
 
     // get my player model
     useEffect(() => {
@@ -89,19 +101,34 @@ const GMGamePage = (props) => {
         }
 
         REMOVE();
-        setSCountSet(false)
+        setCounterSet(false)
     }, [users]);
 
     useEffect(() => {
-        if (settings && !sCountSet) {
-            setSCountSet(true);
-            setStartCounter(Math.floor((settings.startTime - Date.now()) / 1000));
+        if (settings && !countersSet) {
+            setCounterSet(true);
+
+            const lag = settings.startTime - Date.now();
+
+            if (lag > 0) {
+                setStartCounter(lag);
+                const delay = 6000 - lag
+                // set in seconds since thats what the countdown component wants
+                setEndCounter(Math.floor( ((settings.endTime - Date.now()) + delay)/ 1000));
+            } else {
+                setStartCounter(0);
+                let gameTimeRemaining = Math.floor((6000 + settings.endTime - Date.now())/ 1000);
+                gameTimeRemaining = (gameTimeRemaining > 0) ? gameTimeRemaining : 0;
+                setEndCounter(gameTimeRemaining);
+            }
+
+            forceUpdate();
         }
     }, [settings]);
 
     useEffect(() => {
         if (startCounter) {
-            startCounter > 0 && setTimeout(() => setStartCounter(startCounter - 1), 1000);
+            startCounter > 0 && setTimeout(() => setStartCounter(startCounter - 1000), 1000);
         }
     }, [startCounter]);
 
@@ -115,6 +142,56 @@ const GMGamePage = (props) => {
         }
     }, [roomCode, users, gameData, settings, startCounter]);
 
+    /**
+    * handler when user touches outside of modal
+    */
+    const closeHandler = () => {
+        setVisible(false)
+        setModalType('')
+    }
+
+    const settingsModal = () => {
+        setModalType('settings');
+        setVisible(true);
+    }
+
+    const guessesModal = () => {
+        setModalType('guesses');
+        setVisible(true);
+    }
+
+    const ModalComponent = () => {
+        switch (modalType) {
+            case 'settings': {
+                return (
+                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
+                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                            <View style={styles.modalBody}>
+                                <Button>Return to Home</Button>
+                            </View>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                )
+            }
+            case 'guesses': {
+                return (
+                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
+                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                            <View style={styles.modalBody}>
+                                <Button>Return to Home</Button>
+                            </View>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                )
+            }
+            default: {
+                return (
+                    <View />
+                )
+            }
+        }
+    }
+
     if (isLoading) {
         return (
             <View style={styles.container}>
@@ -125,11 +202,11 @@ const GMGamePage = (props) => {
         )
     }
 
-    if (startCounter > 0) {
+    if (startCounter && Math.floor(startCounter / 1000) > 0) {
         return (
             <View style={styles.container}>
                 <Background justify={true}>
-                    <Text style={styles.countdown}>{startCounter}</Text>
+                    <Text style={styles.countdown}>{Math.floor(startCounter / 1000)}</Text>
                 </Background>
             </View>
         )
@@ -138,6 +215,51 @@ const GMGamePage = (props) => {
     return (
         <View style={styles.container}>
             <Background justify={false}>
+
+                <Modal
+                    visible={visible}
+                    transparent={true}
+                    onRequestClose={closeHandler}
+                    animationType={'fade'}
+                >
+                    <ModalComponent />
+                </Modal>
+
+                <View style={styles.settingsContainer}>
+                    <TouchableOpacity onPress={settingsModal}>
+                        <Ionicons name={'settings'} size={40} color="black" />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.toggleWordContainer}>
+                    <TouchableOpacity onPress={() => { setShowWord(!showWord) }}>
+                        {(showWord) ? (<Ionicons name={'radio-button-on'} size={40} color="black" />)
+                            : (<Ionicons name={'radio-button-off'} size={40} color="black" />)}
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.countdownContainer}>
+                    <CountDown
+                        until={endCounter}
+                        size={width * .1}
+                        onFinish={() => { }}
+                        digitStyle={styles.digitStyle}
+                        digitTxtStyle={styles.digitTextStyle}
+                        timeToShow={['M', 'S']}
+                        timeLabels={{ m: null, s: null }}
+                    />
+                </View>
+
+                <View style={styles.wordContainer}>
+                    {(showWord) ? (<Text style={styles.word}>{word}</Text>)
+                        : (<View />)}
+                </View>
+
+                <View style={styles.guessesContainer}>
+                    <TouchableOpacity onPress={guessesModal}>
+                        <FontAwesome5 name={'history'} size={35} color="black" />
+                    </TouchableOpacity>
+                </View>
             </Background>
         </View>
     );

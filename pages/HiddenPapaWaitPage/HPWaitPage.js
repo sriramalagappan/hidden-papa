@@ -8,7 +8,7 @@ import { CommonActions } from '@react-navigation/native';
 import Button from '../../components/Button';
 import Background from '../../components/Background';
 
-const HPWaitPage = () => {
+const HPWaitPage = props => {
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
@@ -18,6 +18,7 @@ const HPWaitPage = () => {
     const me = useSelector(state => state.room.me);
     const users = useSelector(state => state.room.users);
     const gameData = useSelector(state => state.room.gameData);
+    const settings = useSelector(state => state.room.gameData.settings);
 
     const wordChoices = (gameData && gameData.words) ? gameData.words.wordChoices : [];
     const word = (gameData && gameData.words) ? gameData.words.word : '';
@@ -91,6 +92,19 @@ const HPWaitPage = () => {
             setIsLoading(true);
         }
     }, [roomCode, users, wordChoices])
+
+    useEffect(() => {
+        if (settings) {
+            props.navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                        { name: 'Guess' }
+                    ]
+                })
+            )
+        }
+    }, [settings]) 
 
     // determine if I'm ready
     const isReady = () => {
