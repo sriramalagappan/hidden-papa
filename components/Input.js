@@ -19,6 +19,7 @@ const Input = props => {
                 numberOfLines={props.numberOfLines}
                 textAlign={props.textAlign}
                 placeholderTextColor={"#282828"}
+                onSubmitEditing={props.onSubmitEditing}
             />
             {props.children}
         </View>

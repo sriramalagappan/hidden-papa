@@ -25,13 +25,12 @@ export default StyleSheet.create({
     },
     settingsContainer: {
         position: 'absolute',
-        top: width * .075,
-        left: height * .03,
+        top: height * .05,
+        left: width * .05,
     },
     toggleWordContainer: {
         position: 'absolute',
-        top: width * .075,
-        right: height * .03,
+        top: height * .05,
     },
     wordContainer: {
         justifyContent: 'center',
@@ -44,10 +43,33 @@ export default StyleSheet.create({
         fontFamily: 'regular',
         fontSize: 20,
     },
-
-    guessesContainer: {
+    guessesIconContainer: {
         position: 'absolute',
-        bottom: height * .05,
+        top: height * .0555,
+        right: width * .06,
+    },
+    guessContainer: {
+        flexDirection: 'row',
+        height: height * .075,
+        alignItems: 'center',
+        marginTop: height * .01,
+        borderBottomWidth: 1,
+        width: width * .725,
+    },
+    guessTextWord: {
+        fontFamily: 'bold',
+        fontSize: 15,
+    },
+    guessText: {
+        fontFamily: 'regular',
+        fontSize: 15,
+    },
+    guessesListContainer: {
+        marginTop: height * .05,
+        height: height * .3,
+        borderTopWidth: 3,
+        width: width,
+        alignItems: 'center',
     },
 
 

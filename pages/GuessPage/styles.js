@@ -23,14 +23,122 @@ export default StyleSheet.create({
         fontFamily: 'bold',
     },
     countdownContainer: {
-        marginTop: height * .075,
+        marginTop: height * .05,
     },
     inputContainer: {
-        marginTop: height * .2,
+        marginTop: height * .25,
+        alignItems: 'center',
     },
     screen: {
         width,
         height,
         alignItems: 'center',
-    }
+    },
+    settingsContainer: {
+        position: 'absolute',
+        top: height * .05,
+        left: width * .05,
+    },
+    guessesIconContainer: {
+        position: 'absolute',
+        top: height * .055,
+        right: width * .05,
+    },
+    guessContainer: {
+        flexDirection: 'row',
+        height: height * .075,
+        alignItems: 'center',
+        marginTop: height * .01,
+        borderBottomWidth: 1,
+        width: width * .725,
+    },
+    guessTextWord: {
+        fontFamily: 'bold',
+        fontSize: 15,
+    },
+    guessText: {
+        fontFamily: 'regular',
+        fontSize: 15,
+    },
+    guessesListContainer: {
+        marginTop: height * .05,
+        height: height * .3,
+        borderTopWidth: 3,
+        width: width,
+        alignItems: 'center',
+    },
+    keyboardDismiss: {
+        width, 
+        height: height * .5,
+    },
+
+
+
+
+    modalContainer: {
+        width: '100%',
+        height: '100%',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.62)'
+    },
+
+    modal: {
+        padding: 10,
+        ...Platform.select({
+            ios: {
+                backgroundColor: 'white',
+                borderRadius: 10,
+                minWidth: 300,
+            },
+            android: {
+                backgroundColor: 'white',
+                elevation: 24,
+                minWidth: 280,
+                borderRadius: 5,
+            },
+        }),
+    },
+
+    modalBody: {
+        ...Platform.select({
+            ios: {
+                padding: 10,
+            },
+            android: {
+                padding: 24,
+            },
+        }),
+        alignItems: 'center'
+    },
+
+    modalBodyGuesses: {
+        ...Platform.select({
+            ios: {
+                padding: 10,
+            },
+            android: {
+                padding: 24,
+            },
+        }),
+        alignItems: 'center',
+        height: height * .75,
+        width: width * .8,
+    },
+
+    modalBodyNoGuesses: {
+        ...Platform.select({
+            ios: {
+                padding: 10,
+            },
+            android: {
+                padding: 24,
+            },
+        }),
+        alignItems: 'center',
+        height: height * .75,
+        justifyContent: 'center',
+        width: width * .8,
+    },
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import { View, ActivityIndicator, Text, Dimensions, TouchableOpacity, Keyboard } from 'react-native';
+import { View, ActivityIndicator, Text, Dimensions, TouchableOpacity, Keyboard, Modal, FlatList } from 'react-native';
 import styles from './styles';
 import Background from '../../components/Background';
 import * as roomActions from '../../store/actions/room';
@@ -8,8 +8,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
 import CountDown from 'react-native-countdown-component';
 import Input from '../../components/Input';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import Button from '../../components/Button';
+import { Alert } from 'react-native';
+import BigHead from '../../components/BigHead';
+import colors from '../../theme/colors';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 const GuessPage = (props) => {
 
@@ -31,7 +38,11 @@ const GuessPage = (props) => {
     const [startCounter, setStartCounter] = useState(null);
     const [endCounter, setEndCounter] = useState(null);
     const [countersSet, setCounterSet] = useState(false);
-    const [guess, setGuess] = useState('')
+    const [guess, setGuess] = useState('');
+    const [visible, setVisible] = useState(false);
+    const [modalType, setModalType] = useState(false);
+    const [guesses, setGuesses] = useState([]);
+    const [displayGuesses, toggleGuesses] = useState(false);
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -86,14 +97,27 @@ const GuessPage = (props) => {
         })
     }, [roomCode]);
 
-    // get my player model
     useEffect(() => {
         if (users && users.length) {
-            let temp = null
+            // get my player model
+            let temp = null;
+            // get list of guesses
+            let guessList = [];
+
             for (let i = 0; i < users.length; ++i) {
                 if (users[i].username === me) temp = users[i];
+
+                if (users[i].guesses && users[i].guesses.length) {
+                    for (let j = 0; j < users[i].guesses.length; ++j) {
+                        guessList.push({ avatar: users[i].avatar, username: users[i].username, ...users[i].guesses[j] });
+                    }
+                }
             }
-            setMyPlayer(temp)
+            setMyPlayer(temp);
+            guessList.sort(function (a, b) {
+                return b.time - a.time;
+            });
+            setGuesses(guessList.slice())
         }
 
         setCounterSet(false)
@@ -109,10 +133,10 @@ const GuessPage = (props) => {
                 setStartCounter(lag);
                 const delay = 6000 - lag
                 // set in seconds since thats what the countdown component wants
-                setEndCounter(Math.floor( ((settings.endTime - Date.now()) + delay)/ 1000));
+                setEndCounter(Math.floor(((settings.endTime - Date.now()) + delay) / 1000));
             } else {
                 setStartCounter(0);
-                let gameTimeRemaining = Math.floor((6000 + settings.endTime - Date.now())/ 1000);
+                let gameTimeRemaining = Math.floor((6000 + settings.endTime - Date.now()) / 1000);
                 gameTimeRemaining = (gameTimeRemaining > 0) ? gameTimeRemaining : 0;
                 setEndCounter(gameTimeRemaining);
             }
@@ -141,6 +165,70 @@ const GuessPage = (props) => {
         setGuess(input)
     }
 
+    const makeGuess = async () => {
+        if (myPlayer) {
+            if (guess) {
+                const newData = { ...myPlayer };
+                newData.guesses.push({ guess, time: Date.now() });
+                await api.updateUser(roomCode, me, newData);
+
+                if (guess === word) {
+                    await api.
+                }
+            }
+        } else {
+            Alert.alert("Error submitting guess", "Please try again");
+        }
+    }
+
+    /**
+    * handler when user touches outside of modal
+    */
+    const closeHandler = () => {
+        setVisible(false)
+        setModalType('')
+    }
+
+    const settingsModal = () => {
+        setModalType('settings');
+        setVisible(true);
+    }
+
+    const guessesModal = () => {
+        toggleGuesses(!displayGuesses);
+    }
+
+
+    const renderGuess = (itemData) => (
+        <View key={itemData.item.time} style={styles.guessContainer}>
+            {/* <BigHead avatar={itemData.item.avatar} size={width * .1} /> */}
+            <Text style={styles.guessText}>{itemData.item.username} guessed <Text style={styles.guessTextWord}>{itemData.item.guess}</Text></Text>
+        </View>
+    )
+
+
+    const ModalComponent = () => {
+        switch (modalType) {
+            case 'settings': {
+                return (
+                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
+                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                            <View style={styles.modalBody}>
+                                <Button>Return to Home</Button>
+                            </View>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                )
+            }
+            default: {
+                return (
+                    <View />
+                )
+            }
+        }
+    }
+
+
     if (isLoading) {
         return (
             <View style={styles.container}>
@@ -164,18 +252,41 @@ const GuessPage = (props) => {
     return (
         <View style={styles.container}>
             <Background justify={false}>
-                <TouchableOpacity style={styles.screen} onPress={() => { Keyboard.dismiss() }} activeOpacity={1}>
-                    <View style={styles.countdownContainer}>
-                        <CountDown
-                            until={endCounter}
-                            size={width * .08}
-                            onFinish={() => { }}
-                            digitStyle={styles.digitStyle}
-                            digitTxtStyle={styles.digitTextStyle}
-                            timeToShow={['M', 'S']}
-                            timeLabels={{ m: null, s: null }}
-                        />
-                    </View>
+
+                <Modal
+                    visible={visible}
+                    transparent={true}
+                    onRequestClose={closeHandler}
+                    animationType={'fade'}
+                >
+                    <ModalComponent />
+                </Modal>
+
+
+                <View style={styles.settingsContainer}>
+                    <TouchableOpacity onPress={settingsModal}>
+                        <Ionicons name={'settings'} size={40} color="black" />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.guessesIconContainer}>
+                    <TouchableOpacity onPress={guessesModal}>
+                        <FontAwesome5 name={'history'} size={36} color="black" />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.countdownContainer}>
+                    <CountDown
+                        until={endCounter}
+                        size={width * .1}
+                        onFinish={() => { }}
+                        digitStyle={styles.digitStyle}
+                        digitTxtStyle={styles.digitTextStyle}
+                        timeToShow={['M', 'S']}
+                        timeLabels={{ m: null, s: null }}
+                    />
+                </View>
+                <TouchableWithoutFeedback style={styles.keyboardDismiss} onPress={() => { Keyboard.dismiss() }}>
                     <View style={styles.inputContainer}>
                         <Input
                             onChangeText={updateGuess}
@@ -188,9 +299,22 @@ const GuessPage = (props) => {
                             multiline={false}
                             numberOfLines={1}
                             textAlign={"center"}
+                            onSubmitEditing={makeGuess}
                         />
+                        <Button onPress={makeGuess}>Submit</Button>
                     </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
+                {(displayGuesses) ?
+                    (<View style={styles.guessesListContainer}>
+                        <FlatList
+                            data={guesses}
+                            renderItem={renderGuess}
+                            keyExtractor={(user, index) => index.toString()}
+                            numColumns={1}
+                        />
+                    </View>)
+                    : (<View />)
+                }
             </Background>
         </View>
     );

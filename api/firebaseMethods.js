@@ -52,6 +52,7 @@ export const createRoom = async (roomCode, username, avatar, server) => {
                 gamesPlayed: 0,
                 gamesWonHP: 0,
                 gamesWonGuesser: 0,
+                guesses: [],
             })
 
     } catch (err) {
@@ -328,6 +329,31 @@ export const startGame = async (roomCode) => {
                 startTime: Date.now() + 6000,
                 endTime: Date.now() + gameTimeLength
             });
+
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
+export const votingSetup = async (roomCode, user) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        // set room state to game-started and update time
+        await roomRef.set({
+            roomState: 'voting',
+            latestActionTime: Date.now(),
+        }, { merge: true });
+
+        // set who guessed the word correctly
+        await roomRef.collection("game")
+            .doc('voting').set({
+                wordGuessedBy: user,
+            });
+
 
     } catch (err) {
         const errorMessage = err.message;

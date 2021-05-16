@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import { View, ActivityIndicator, Text, Dimensions, Modal } from 'react-native';
+import { View, ActivityIndicator, Text, Dimensions, Modal, FlatList } from 'react-native';
 import styles from './styles';
 import Background from '../../components/Background';
 import * as roomActions from '../../store/actions/room';
@@ -10,6 +10,7 @@ import CountDown from 'react-native-countdown-component';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Button from '../../components/Button';
+
 
 const width = Dimensions.get('window').width;
 
@@ -36,6 +37,8 @@ const GMGamePage = (props) => {
     const [showWord, setShowWord] = useState(false);
     const [visible, setVisible] = useState(false);
     const [modalType, setModalType] = useState(false);
+    const [displayGuesses, toggleGuesses] = useState(false);
+    const [guesses, setGuesses] = useState([]);
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -90,17 +93,29 @@ const GMGamePage = (props) => {
     }, [roomCode]);
 
 
-    // get my player model
     useEffect(() => {
         if (users && users.length) {
-            let temp = null
+            // get my player model
+            let temp = null;
+            // get list of guesses
+            let guessList = [];
+
             for (let i = 0; i < users.length; ++i) {
                 if (users[i].username === me) temp = users[i];
+
+                if (users[i].guesses && users[i].guesses.length) {
+                    for (let j = 0; j < users[i].guesses.length; ++j) {
+                        guessList.push({ avatar: users[i].avatar, username: users[i].username, ...users[i].guesses[j] });
+                    }
+                }
             }
-            setMyPlayer(temp)
+            setMyPlayer(temp);
+            guessList.sort(function (a, b) {
+                return b.time - a.time;
+            });
+            setGuesses(guessList.slice())
         }
 
-        REMOVE();
         setCounterSet(false)
     }, [users]);
 
@@ -156,24 +171,20 @@ const GMGamePage = (props) => {
     }
 
     const guessesModal = () => {
-        setModalType('guesses');
-        setVisible(true);
+        toggleGuesses(!displayGuesses);
     }
+
+    const renderGuess = (itemData) => (
+        <View key={itemData.item.time} style={styles.guessContainer}>
+            {/* <BigHead avatar={itemData.item.avatar} size={width * .1} /> */}
+            <Text style={styles.guessText}>{itemData.item.username} guessed <Text style={styles.guessTextWord}>{itemData.item.guess}</Text></Text>
+        </View>
+    )
+
 
     const ModalComponent = () => {
         switch (modalType) {
             case 'settings': {
-                return (
-                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
-                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
-                            <View style={styles.modalBody}>
-                                <Button>Return to Home</Button>
-                            </View>
-                        </TouchableOpacity>
-                    </TouchableOpacity>
-                )
-            }
-            case 'guesses': {
                 return (
                     <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
                         <TouchableOpacity style={styles.modal} activeOpacity={1}>
@@ -255,11 +266,23 @@ const GMGamePage = (props) => {
                         : (<View />)}
                 </View>
 
-                <View style={styles.guessesContainer}>
+                <View style={styles.guessesIconContainer}>
                     <TouchableOpacity onPress={guessesModal}>
-                        <FontAwesome5 name={'history'} size={35} color="black" />
+                        <FontAwesome5 name={'history'} size={34} color="black" />
                     </TouchableOpacity>
                 </View>
+
+                {(displayGuesses) ?
+                    (<View style={styles.guessesListContainer}>
+                        <FlatList
+                            data={guesses}
+                            renderItem={renderGuess}
+                            keyExtractor={(user, index) => index.toString()}
+                            numColumns={1}
+                        />
+                    </View>)
+                    : (<View />)
+                }
             </Background>
         </View>
     );
