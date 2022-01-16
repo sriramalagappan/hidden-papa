@@ -337,7 +337,7 @@ export const startGame = async (roomCode) => {
     }
 }
 
-export const votingSetup = async (roomCode, user) => {
+export const votingSetup = async (roomCode, user, guessStartTime) => {
     try {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
@@ -348,10 +348,14 @@ export const votingSetup = async (roomCode, user) => {
             latestActionTime: Date.now(),
         }, { merge: true });
 
-        // set who guessed the word correctly
+        let voteTimeLength = Date.now() - guessStartTime
+
+        // set who guessed the word correctly and times
         await roomRef.collection("game")
             .doc('voting').set({
                 wordGuessedBy: user,
+                startTime: Date.now(),
+                endTime: Date.now() + 10000 + voteTimeLength, // pad 10 seconds for lag
             });
 
 

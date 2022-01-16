@@ -116,7 +116,8 @@ const GMGamePage = (props) => {
             setGuesses(guessList.slice())
         }
 
-        setCounterSet(false)
+        // REMOVE();
+        // setCounterSet(false)
     }, [users]);
 
     useEffect(() => {

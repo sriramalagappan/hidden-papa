@@ -6,7 +6,7 @@ const initialState = {
     users: [],
     roomData: {},
     gameData: {},
-    me: (Platform.OS === 'ios') ? 'fhf' : 'f',
+    me: 'fhf'//(Platform.OS === 'ios') ? 'fhf' : 'f',
 }
 
 const roomReducer = (state = initialState, action) => {

@@ -67,9 +67,28 @@ export default StyleSheet.create({
         width: width,
         alignItems: 'center',
     },
-    keyboardDismiss: {
+    bodyContainer: {
         width, 
         height: height * .5,
+    },
+    player: {
+        width: width * .23,
+        alignItems: 'center',
+    },
+    playerText: {
+        color: 'black',
+        fontSize: 13,
+        fontFamily: 'thin',
+        textAlign: 'center'
+    },
+    readyIcon: {
+        position: 'absolute',
+        right: width * .01,
+        top: height * .01,
+    },
+    playersContainer: {
+        alignItems: 'center',
+        marginTop: height * .05,
     },
 
 
@@ -141,4 +160,12 @@ export default StyleSheet.create({
         justifyContent: 'center',
         width: width * .8,
     },
+
+    modalTitle: {
+        fontFamily: 'regular',
+        fontSize: 15,
+    },
+    row: {
+        flexDirection: 'row'
+    }
 });
