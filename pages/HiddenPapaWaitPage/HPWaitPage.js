@@ -28,6 +28,7 @@ const HPWaitPage = props => {
     const [isLoading2, setIsLoading2] = useState(false);
     const [reveal, setReveal] = useState(false);
     const [myPlayer, setMyPlayer] = useState(null);
+    const [nav, setNav] = useState(false);
 
     // get my player model
     useEffect(() => {
@@ -94,7 +95,10 @@ const HPWaitPage = props => {
     }, [roomCode, users, wordChoices])
 
     useEffect(() => {
-        if (settings) {
+        if (settings && !nav) {
+            setNav(true);
+            setIsLoading(true);
+            
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,

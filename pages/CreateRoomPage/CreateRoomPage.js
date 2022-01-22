@@ -14,20 +14,21 @@ import Background from '../../components/Background';
 
 const height = Dimensions.get('window').height;
 
-const image = require('../../assets/Background.png')
-
 const CreateRoomPage = (props) => {
 
     // store dispatch function in variable to use elsewhere
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     // Redux Store-State Variables
     // used to verify when to move to lobby
-    const roomCode = useSelector(state => state.room.roomCode)
+    const roomCode = useSelector(state => state.room.roomCode);
 
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
-        if (roomCode) {
+        if (roomCode && !nav) {
+            setNav(true);
+            setIsLoading(true);
+            
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,
@@ -37,12 +38,13 @@ const CreateRoomPage = (props) => {
                 })
             )
         }
-    }, [roomCode])
+    }, [roomCode]);
 
     // Stateful Variables
     const [username, setUsername] = useState('');
     const [server, setServer] = useState('');
     const [isLoading, setIsLoading] = useState(false)
+    const [nav, setNav] = useState(false);
 
     const updateUsername = (newUsername) => {
         setUsername(newUsername);

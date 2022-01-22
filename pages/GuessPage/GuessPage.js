@@ -14,6 +14,7 @@ import SmallButton from '../../components/SmallButton';
 import BigHead from '../../components/BigHead';
 import colors from '../../theme/colors';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { set } from 'react-native-reanimated';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -31,6 +32,7 @@ const GuessPage = (props) => {
     const gameData = useSelector(state => state.room.gameData);
     const settings = useSelector(state => state.room.gameData.settings);
     const voteSettings = useSelector(state => state.room.gameData.voting);
+    const resultsSettings = useSelector(state => state.room.gameData.results);
 
     const word = (gameData && gameData.words) ? gameData.words.word : '';
 
@@ -40,13 +42,13 @@ const GuessPage = (props) => {
     const [startCounter, setStartCounter] = useState(null);
     const [endCounter, setEndCounter] = useState(null);
     const [countersSet, setCounterSet] = useState(false);
-    const [voteCountersSet, setVoteCounterSet] = useState(false);
     const [guess, setGuess] = useState('');
     const [visible, setVisible] = useState(false);
     const [modalType, setModalType] = useState(false);
     const [modalData, setModalData] = useState(null);
     const [guesses, setGuesses] = useState([]);
     const [displayGuesses, toggleGuesses] = useState(false);
+    const [nav, setNav] = useState(false);
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -117,7 +119,7 @@ const GuessPage = (props) => {
             setGuesses(guessList.slice())
         }
 
-        // setCounterSet(false)
+        //setCounterSet(false)
     }, [users]);
 
     useEffect(() => {
@@ -143,16 +145,39 @@ const GuessPage = (props) => {
     }, [settings]);
 
     useEffect(() => {
-        if (voteSettings && voteSettings.endTime && !voteCountersSet) {
-            setVoteCounterSet(true);
+        // see if we are in voting phase
+        if (voteSettings && voteSettings.endTime && !nav) {
+            setNav(true);
+            setIsLoading(true);
 
-            let gameTimeRemaining = Math.floor((voteSettings.endTime - voteSettings.startTime) / 1000);
-            gameTimeRemaining = (gameTimeRemaining > 0) ? gameTimeRemaining : 0;
-            setEndCounter(gameTimeRemaining);
-
-            forceUpdate();
+            props.navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                        { name: 'Vote' }
+                    ]
+                })
+            )
         }
     }, [voteSettings])
+
+    useEffect(() => {
+        // see if results have been generated
+        if (resultsSettings && resultsSettings.hiddenPapa && !nav) {
+            setNav(true);
+            setIsLoading(true);
+            
+            // navigate to results page
+            props.navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                        { name: 'Results' }
+                    ]
+                })
+            )
+        }
+    }, [resultsSettings])
 
     useEffect(() => {
         if (startCounter) {
@@ -178,6 +203,12 @@ const GuessPage = (props) => {
         if (myPlayer) {
             if (guess) {
                 const newData = { ...myPlayer };
+                
+                // Check id the player data has a guess list, otherwise create it
+                if (!newData.guesses) {
+                    newData.guesses = []
+                }
+
                 newData.guesses.push({ guess, time: Date.now() });
                 await api.updateUser(roomCode, me, newData);
 
@@ -195,6 +226,7 @@ const GuessPage = (props) => {
             const newData = { ...myPlayer };
             newData.vote = player
             await api.updateUser(roomCode, me, newData);
+            closeHandler();
         }
     }
 
@@ -349,41 +381,25 @@ const GuessPage = (props) => {
                     />
                 </View>
 
-                {(roomData && roomData.roomState === 'voting') ?
-                    (
-                        <View style={styles.bodyContainer}>
-                            <View style={styles.playersContainer}>
-                                <FlatList
-                                    data={users}
-                                    renderItem={renderPlayer}
-                                    keyExtractor={(user, index) => index.toString()}
-                                    numColumns={4}
-                                    scrollEnabled={false}
-                                />
-                            </View>
-                        </View >
-                    )
-                    : (
-                        <TouchableWithoutFeedback style={styles.bodyContainer} onPress={() => { Keyboard.dismiss() }}>
-                            <View style={styles.inputContainer}>
-                                <Input
-                                    onChangeText={updateGuess}
-                                    value={guess}
-                                    placeholder={(myPlayer.role === 'hidden-papa') ? word : "Enter a guess"}
-                                    keyboardType={"default"}
-                                    autoCapitalize={"none"}
-                                    autoCorrect={false}
-                                    maxLength={20}
-                                    multiline={false}
-                                    numberOfLines={1}
-                                    textAlign={"center"}
-                                // onSubmitEditing={makeGuess}
-                                />
-                                <Button onPress={makeGuess}>Submit</Button>
-                            </View>
-                        </TouchableWithoutFeedback>
-                    )
-                }
+
+                <TouchableWithoutFeedback style={styles.bodyContainerTop} onPress={() => { Keyboard.dismiss() }}>
+                    <View style={styles.inputContainer}>
+                        <Input
+                            onChangeText={updateGuess}
+                            value={guess}
+                            placeholder={(myPlayer.role === 'hidden-papa') ? word : "Enter a guess"}
+                            keyboardType={"default"}
+                            autoCapitalize={"none"}
+                            autoCorrect={false}
+                            maxLength={20}
+                            multiline={false}
+                            numberOfLines={1}
+                            textAlign={"center"}
+                        />
+                    </View>
+                </TouchableWithoutFeedback>
+                
+                <Button onPress={makeGuess}>Submit</Button>
 
                 {(displayGuesses) ?
                     (<View style={styles.guessesListContainer}>

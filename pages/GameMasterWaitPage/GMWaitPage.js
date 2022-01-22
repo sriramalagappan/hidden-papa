@@ -28,6 +28,7 @@ const GMWaitPage = (props) => {
     const [isLoading2, setIsLoading2] = useState(false);
     const [reveal, setReveal] = useState(false);
     const [myPlayer, setMyPlayer] = useState(null);
+    const [nav, setNav] = useState(false);
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -108,7 +109,10 @@ const GMWaitPage = (props) => {
     }, [users, me])
 
     useEffect(() => {
-        if (settings) {
+        if (settings && !nav) {
+            setNav(true);
+            setIsLoading(true);
+
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,
@@ -172,8 +176,8 @@ const GMWaitPage = (props) => {
                 <Background justify={true}>
                     <Text style={styles.revealText}>You are the Game Master</Text>
                     <Text style={styles.smallText}>Word: {word}</Text>
-                    <Text style={styles.smallTextMargin}>You may now reveal yourself</Text>
-                    <Text style={styles.smallText}>Waiting for everyone else to be ready...</Text>
+                    <Text style={styles.smallTextMargin}>You may now reveal yourself.</Text>
+                    <Text style={styles.smallTextMargin}>Waiting for everyone else to be ready...</Text>
                 </Background>
             </View>
         )

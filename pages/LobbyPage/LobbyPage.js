@@ -42,6 +42,7 @@ const LobbyPage = (props) => {
     const [modalType, setModalType] = useState('');
     const [serverTag, setServerTag] = useState('');
     const [modalData, setModalData] = useState({});
+    const [navigate, setNavigate] = useState(false);
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -101,10 +102,11 @@ const LobbyPage = (props) => {
 
     useEffect(() => {
         // check if I have been assigned a role. If I have, route me to next screen
-        if (me && users && users.length && !isLoading) {
+        if (me && users && users.length && !isLoading && !navigate) {
             for (let i = 0; i < users.length; ++i) {
                 const role = users[i].role
                 if (users[i].username === me && role) {
+                    setNavigate(true);
                     if (role === 'game-master') {
                         props.navigation.dispatch(
                             CommonActions.reset({
@@ -172,7 +174,7 @@ const LobbyPage = (props) => {
             let temp = '';
             ServerLocations.forEach((location) => {
                 if (location.value === server) {
-                    temp = location.label
+                    temp = location.label;
                 }
             })
             setServerTag(temp)
@@ -202,16 +204,16 @@ const LobbyPage = (props) => {
     * handler when user touches outside of modal
     */
     const closeHandler = () => {
-        setVisible(false)
-        setModalData({})
-        setModalType('')
+        setVisible(false);
+        setModalData({});
+        setModalType('');
     }
 
     // send message to server to kick given player
     const kickPlayer = async (player) => {
         if (isHost()) {
-            api.kickPlayer(roomCode, player)
-            closeHandler()
+            api.kickPlayer(roomCode, player);
+            closeHandler();
         }
     }
 
@@ -231,45 +233,47 @@ const LobbyPage = (props) => {
 
     // route home and close room if host, or remove myself from room if player
     const routeHome = async () => {
-        setVisible(false)
+        setVisible(false);
         if (isHost()) {
-            await api.sendMsg(roomCode, { type: 'roomClosed', to: '' })
+            await api.sendMsg(roomCode, { type: 'roomClosed', to: '' });
         } else {
-            await api.removePlayer(roomCode, me)
+            await api.removePlayer(roomCode, me);
         }
-        props.navigation.navigate('Home')
+        props.navigation.navigate('Home');
     }
 
     // tell room / server I'm ready
     const setReady = async () => {
-        let newData = myPlayer
-        newData.isReady = !newData.isReady
+        let newData = myPlayer;
+        newData.isReady = !newData.isReady;
         await api.updateUser(roomCode, me, newData);
     }
 
     // open modal for player card
     const openPlayerModel = (player) => {
-        setModalType('player')
-        setModalData(player)
-        setVisible(true)
+        setModalType('player');
+        setModalData(player);
+        setVisible(true);
     }
 
     // open modal for game settings
     const openGameSettingsModal = () => {
-        if (isHost()) setModalType('gameSettingsEdit')
-        else setModalType('gameSettingsView')
-        setVisible(true)
+        if (isHost()) {
+            setModalType('gameSettingsEdit');
+            setVisible(true);
+        }
+        //else setModalType('gameSettingsView')
     }
 
     // start game by assigning roles to players
     const startGameHandler = async () => {
-        setIsLoading2(true)
+        setIsLoading2(true);
         await api.gameSetup(roomCode);
-        setIsLoading2(false)
+        setIsLoading2(false);
     }
 
     const setCategories = async (tempCategories) => {
-        await api.updateCategories(roomCode, tempCategories)
+        await api.updateCategories(roomCode, tempCategories);
     }
 
     // --------------------------------------------------------------
@@ -457,7 +461,7 @@ const LobbyPage = (props) => {
                         />
                     </View>
                     <View style={styles.sideContainer}>
-                        <TouchableOpacity style={styles.sideButton}>
+                        <TouchableOpacity style={styles.sideButton} disabled={true}>
                             <Text style={styles.sideTitle}>Game Rules</Text>
                         </TouchableOpacity>
                     </View>

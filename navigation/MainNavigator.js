@@ -1,8 +1,10 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { TransitionPresets } from '@react-navigation/stack';
 import colors from '../theme/colors'
 import { Ionicons } from '@expo/vector-icons';
+import { View } from 'react-native';
 
 import IntroPage from '../pages/IntroPage/IntroPage';
 import HomePage from '../pages/HomePage/HomePage';
@@ -15,6 +17,9 @@ import HPWaitPage from '../pages/HiddenPapaWaitPage/HPWaitPage';
 import GuesserWaitPage from '../pages/GuesserWaitPage/GuesserWaitPage';
 import GMGamePage from '../pages/GameMasterGamePage/GMGamePage';
 import GuessPage from '../pages/GuessPage/GuessPage';
+import Background from '../components/Background';
+import VotingPage from '../pages/VotingPage/VotingPage';
+import ResultsPage from '../pages/ResultsPage/ResultsPage';
 
 const MainNavigator = () => {
 
@@ -22,6 +27,14 @@ const MainNavigator = () => {
 
     return (
         <NavigationContainer>
+            <View style={{
+                position: 'absolute',
+                height: '100%',
+                width: '100%',
+                backgroundColor: colors.primary
+            }}>
+                <Background />   
+            </View>
             <Stack.Navigator>
                 <Stack.Screen
                     name="Intro"
@@ -42,7 +55,7 @@ const MainNavigator = () => {
                         cardStyle: {
                             backgroundColor: colors.primary,
                             opacity: 1,
-                        }
+                        },
                     }}
                 />
                 <Stack.Screen
@@ -134,7 +147,7 @@ const MainNavigator = () => {
                         cardStyle: {
                             backgroundColor: colors.primary,
                             opacity: 1,
-                        },
+                        }
                     }}
                 />
                 <Stack.Screen
@@ -184,6 +197,28 @@ const MainNavigator = () => {
                 <Stack.Screen
                     name="Guess"
                     component={GuessPage}
+                    options={{
+                        headerShown: false,
+                        cardStyle: {
+                            backgroundColor: colors.primary,
+                            opacity: 1,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="Vote"
+                    component={VotingPage}
+                    options={{
+                        headerShown: false,
+                        cardStyle: {
+                            backgroundColor: colors.primary,
+                            opacity: 1,
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="Results"
+                    component={ResultsPage}
                     options={{
                         headerShown: false,
                         cardStyle: {

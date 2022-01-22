@@ -7,7 +7,7 @@ const height = Dimensions.get('window').height;
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.primary,
         alignItems: 'center',
         justifyContent: 'flex-start',
     },
@@ -66,20 +66,19 @@ export default StyleSheet.create({
         alignItems: 'center',
         backgroundColor: colors.primary_light,
         position: 'absolute',
-        top: height * .65,
+        top: height * .6,
         ...Platform.select({
             ios: {
-                height: height * .35,
+                height: height * .4,
             },
             android: {
-                height: height * .4,
+                height: height * .44,
             },
         }),
     },
     bodyContainerTop: {
         width, 
-        height: height * .325,
-
+        height: height * .3,
     },
     bodyContainerBottom: {
         width, 

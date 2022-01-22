@@ -34,12 +34,11 @@ export const createRoom = async (roomCode, username, avatar, server) => {
                 latestActionTime: Date.now(),
                 gameDifficulty: 'normal',
                 gameTimeLength: 300000, // 5 minutes
-                phase: 'lobby',
                 server,
                 msg: { type: '', to: '' },
                 kicked: [],
                 wordCategories: defaultENWordCategories,
-                roomState: 'open'
+                roomState: 'lobby'
             });
 
         await db.collection("rooms")
@@ -64,10 +63,15 @@ export const createRoom = async (roomCode, username, avatar, server) => {
 export const joinRoom = async (roomCode, username, avatar, server) => {
     try {
         const db = firebase.firestore();
-        const roomRef = db.collection('rooms').doc(roomCode)
+        const roomRef = db.collection('rooms').doc(roomCode);
 
         const userSnapshot = await roomRef.collection("users").get();
-        const users = userSnapshot.docs.map(doc => doc.id)
+        const users = userSnapshot.docs.map(doc => doc.id);
+
+        // Check if room exists/has at least one player
+        if (users.length === 0) {
+            throw "We could not find a room with the provided room code. Please check the code and try again";
+        }
 
         // Check if room is full
         if (users.length >= 8) {
@@ -100,7 +104,6 @@ export const joinRoom = async (roomCode, username, avatar, server) => {
                 gamesWonHP: 0,
                 gamesWonGuesser: 0,
             })
-
 
     } catch (err) {
         const errorMessage = err.message;
@@ -188,6 +191,8 @@ export const gameSetup = async (roomCode) => {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
 
+        await roomRef.collection('game').doc('results').delete(); // delete previous game results
+
         // set room state to game-started and update time
         await roomRef.set({
             roomState: 'word-selection',
@@ -211,7 +216,7 @@ export const gameSetup = async (roomCode) => {
             await userRef.set({ role, isReady: false, }, { merge: true });
         }
 
-        let categories = []
+        let categories = [];
 
         // Get categories
         await roomRef.get().then((doc) => {
@@ -219,13 +224,13 @@ export const gameSetup = async (roomCode) => {
                 const data = doc.data();
                 categories = [...data.wordCategories]
             }
-        })
+        });
 
         // get subset of words given categories
         let words = ENWords.filter(word => categories.indexOf(word.category) !== -1)
 
         // select three unique words randomly
-        const firstWord = words[Math.floor((Math.random() * words.length))].text;
+        let firstWord = words[Math.floor((Math.random() * words.length))].text;
         let secondWord = words[Math.floor((Math.random() * words.length))].text;
         while (secondWord === firstWord) {
             secondWord = words[Math.floor((Math.random() * words.length))].text;
@@ -241,7 +246,7 @@ export const gameSetup = async (roomCode) => {
         await roomRef.collection("game")
             .doc('words').set({
                 wordChoices
-            })
+            });
 
 
     } catch (err) {
@@ -342,7 +347,7 @@ export const votingSetup = async (roomCode, user, guessStartTime) => {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
 
-        // set room state to game-started and update time
+        // set room state to voting and update time
         await roomRef.set({
             roomState: 'voting',
             latestActionTime: Date.now(),
@@ -358,6 +363,177 @@ export const votingSetup = async (roomCode, user, guessStartTime) => {
                 endTime: Date.now() + 10000 + voteTimeLength, // pad 10 seconds for lag
             });
 
+
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
+export const generateResults = async (roomCode, word) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        // check if results are already being generated
+        await roomRef.get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+
+                if (data.roomState === 'lobby') return;
+            }
+        })
+
+        // set room state to results and update time
+        await roomRef.set({
+            roomState: 'lobby',
+            latestActionTime: Date.now(),
+        }, { merge: true });
+
+        // get users
+        const userSnapshot = await roomRef.collection("users").get();
+        const users = userSnapshot.docs.map(doc => doc.id);
+
+        // check player votes
+        let votes = [];
+        const noVote = '__________NO VOTE__________';
+
+        users.forEach(async (user) => {
+            const userRef = roomRef.collection('users').doc(user);
+            
+            await userRef.get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+
+                    if (data.vote) {
+                        votes.push(data.vote);
+                    } else {
+                        votes.push(noVote);
+                    }
+                }
+            });
+        });
+
+        let updateObject = {
+            role: firebase.firestore.FieldValue.delete(),
+            guesses: firebase.firestore.FieldValue.delete(),
+            vote: firebase.firestore.FieldValue.delete(),
+            isReady: false,
+        }
+
+        let hiddenPapa;
+
+        // find majority vote and see if it was correct        
+        const gameWon = (findMajority(votes) === hiddenPapa) ? 1 : 0 // needs to be an integer
+            
+        // update player stats
+        users.forEach(async (user) => {
+            const userRef = roomRef.collection('users').doc(user);
+            await userRef.get().then(async (doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    let update;
+                    if (data.role === 'hidden-papa') {
+                        hiddenPapa = data.username; // find username of hidden papa
+                        update = (gameWon) ? {
+                            gamesPlayed: data.gamesPlayed + 1,
+                            ...updateObject
+                        } : {
+                            gamesPlayed: data.gamesPlayed + 1,
+                            gamesWonHP: data.gamesWonHP + 1,
+                            ...updateObject
+                        }
+                    } else {
+                        update = (gameWon) ? {
+                            gamesPlayed: data.gamesPlayed + 1,
+                            gamesWonGuesser: data.gamesWonGuesser + 1,
+                            ...updateObject
+                        } : {
+                            gamesPlayed: data.gamesPlayed + 1,
+                            ...updateObject
+                        }
+                    }
+                    await userRef.set({ ...update }, { merge: true });
+                }
+            });
+        });
+
+        const resultObject = {hiddenPapa, votes, word, gameWon};
+
+        // push result to db
+        await roomRef.collection("game").doc('results').set(resultObject);
+
+        // cleanup db
+        await roomRef.collection('game').doc('words').delete();
+        await roomRef.collection('game').doc('settings').delete();
+        await roomRef.collection('game').doc('voting').delete();
+
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
+// if word is not guessed in time, everyone losses
+export const gameOver = async (roomCode, word) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        // check if results are already being generated
+        await roomRef.get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+
+                if (data.roomState === 'lobby') return;
+            }
+        })
+
+        // set room state to results and update time
+        await roomRef.set({
+            roomState: 'lobby',
+            latestActionTime: Date.now(),
+        }, { merge: true });
+
+        // get users
+        const userSnapshot = await roomRef.collection("users").get();
+        const users = userSnapshot.docs.map(doc => doc.id);
+
+        // find hidden papa
+        let hiddenPapa;
+            
+        // update player stats
+        users.forEach(async (user) => {
+            const userRef = roomRef.collection('users').doc(user);
+            await userRef.get().then(async (doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const update = {
+                        role: firebase.firestore.FieldValue.delete(),
+                        guesses: firebase.firestore.FieldValue.delete(),
+                        vote: firebase.firestore.FieldValue.delete(),
+                        isReady: false,
+                        gamesPlayed: data.gamesPlayed + 1,
+                    };
+                    await userRef.set({ ...update }, { merge: true });
+
+                    // find username of hidden papa
+                    if (data.role === 'hidden-papa') hiddenPapa = data.username;
+                }
+            });
+        });
+
+        const resultObject = {hiddenPapa, votes, word, gameWon: -1};
+
+        // push result to db
+        await roomRef.collection("game").doc('results').set(resultObject);
+
+        // cleanup db
+        await roomRef.collection('game').doc('words').delete();
+        await roomRef.collection('game').doc('settings').delete();
+        await roomRef.collection('game').doc('voting').delete();
 
     } catch (err) {
         const errorMessage = err.message;
@@ -465,3 +641,33 @@ const createRoles = (len) => {
     insert(result, hpIndex, 'hidden-papa');
     return result;
 }
+
+// Function to find majority element
+function findMajority(arr)
+  {
+    var count = 0, candidate = -1;
+ 
+    // Finding majority candidate
+    for (var index = 0; index < arr.length; index++) {
+      if (count == 0) {
+        candidate = arr[index];
+        count = 1;
+      }
+      else {
+        if (arr[index] == candidate)
+          count++;
+        else
+          count--;
+      }
+    }
+ 
+    // Checking if majority candidate occurs more than n/2 times
+    for (var index = 0; index < arr.length; index++) {
+      if (arr[index] == candidate)
+        count++;
+    }
+    if (count > (arr.length / 2))
+      return candidate;
+    return -1;
+
+  }

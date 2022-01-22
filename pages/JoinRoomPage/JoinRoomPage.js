@@ -27,7 +27,10 @@ const JoinRoomPage = (props) => {
 
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
-        if (roomCode) {
+        if (roomCode && !nav) {
+            setNav(true);
+            setIsLoading(true);
+            
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,
@@ -44,13 +47,14 @@ const JoinRoomPage = (props) => {
     const [server, setServer] = useState('');
     const [roomCodeInput, setRoomCodeInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [nav, setNav] = useState(false);
 
     const updateRoomCode = (input) => {
         if (input.length <= 6) {
             setRoomCodeInput(input)
         }
 
-        if (input.length === 6) {
+        if (input.length >= 6) {
             Keyboard.dismiss();
         }
     }
@@ -86,21 +90,24 @@ const JoinRoomPage = (props) => {
         <View style={styles.container}>
             <Background justify={false}>
                 <View style={styles.roomCodeContainer}>
-                    <Text style={styles.text}>Room Code: </Text>
-                    <CharacterInput 
-                        placeHolder='      '
-                        showCharBinary='111111'
-                        handleChange={(value) => updateRoomCode(value)}
-                        inputType='contained'
-                        keyboardType="numeric"
-                        inputStyle={styles.inputText}
+                    <Input
+                        onChangeText={updateRoomCode}
+                        value={roomCodeInput}
+                        placeholder={"Room Code"}
+                        keyboardType={"numeric"}
+                        autoCapitalize={"none"}
+                        autoCorrect={false}
+                        maxLength={6}
+                        multiline={false}
+                        numberOfLines={1}
+                        textAlign={"left"}
                     />
                 </View>
                 <View style={styles.inputContainer}>
                     <Input
                         onChangeText={updateUsername}
                         value={username}
-                        placeholder={"Enter a username"}
+                        placeholder={"Enter a Username"}
                         keyboardType={"default"}
                         autoCapitalize={"none"}
                         autoCorrect={false}

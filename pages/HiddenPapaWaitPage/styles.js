@@ -12,10 +12,12 @@ export default StyleSheet.create({
     revealText: {
         fontFamily: 'bold',
         fontSize: 30,
+        textAlign: 'center',
     },
     roleText: {
         fontFamily: 'bold',
         fontSize: width * .065,
+        textAlign: 'center',
     },
     screen: {
         width: width,
@@ -24,10 +26,14 @@ export default StyleSheet.create({
     smallText: {
         fontFamily: 'thin',
         fontSize: 20,
+        textAlign:'center',
+        marginHorizontal: 20,
     },
     smallTextMargin: {
         fontFamily: 'thin',
         fontSize: 20,
         marginTop: height * .05,
+        marginHorizontal: 20,
+        textAlign:'center',
     },
 });

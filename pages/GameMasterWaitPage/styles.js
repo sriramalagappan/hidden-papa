@@ -13,18 +13,21 @@ export default StyleSheet.create({
     revealText: {
         fontFamily: 'bold',
         fontSize: 30,
+        textAlign: 'center',
     },
 
     subtitle: {
         fontFamily: 'regular',
         fontSize: 20,
-        marginTop: height * .15
+        marginTop: height * .15,
+        textAlign: 'center'
     },
 
     roleText: {
         fontFamily: 'bold',
         fontSize: width * .065,
         marginTop: height * .1,
+        textAlign: 'center'
     },
 
     listContainer: {
@@ -46,5 +49,7 @@ export default StyleSheet.create({
         fontFamily: 'thin',
         fontSize: 20,
         marginTop: height * .05,
+        marginHorizontal: 20,
+        textAlign:'center'
     },
 });

@@ -2,11 +2,11 @@ import { Platform } from 'react-native'
 import { JOIN_ROOM, RESET_ROOM, UPDATE_ROOM_DATA, UPDATE_USERS_DATA, UPDATE_GAME_DATA } from '../actions/room';
 
 const initialState = {
-    roomCode: '146481',
+    roomCode: '',//'837797',
     users: [],
     roomData: {},
     gameData: {},
-    me: 'fhf'//(Platform.OS === 'ios') ? 'fhf' : 'f',
+    me: ''// (Platform.OS === 'ios') ? 'h2' : 'delete',
 }
 
 const roomReducer = (state = initialState, action) => {

@@ -66,13 +66,12 @@ export default StyleSheet.create({
     },
     guessesListContainer: {
         marginTop: height * .05,
-        height: height * .3,
+        height: height * .4,
         borderTopWidth: 3,
         width: width,
         alignItems: 'center',
+        backgroundColor: colors.primary_light
     },
-
-
 
 
 
