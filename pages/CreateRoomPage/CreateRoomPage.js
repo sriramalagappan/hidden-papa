@@ -6,11 +6,11 @@ import Button from '../../components/Button'
 import { useDispatch, useSelector } from 'react-redux'
 import DropDownPicker from 'react-native-dropdown-picker';
 import Input from '../../components/Input';
-import { init, login, checkRoom } from '../../api/firebaseMethods';
 import * as roomActions from '../../store/actions/room';
 import ServerLocations from '../../data/ServerLocations';
 import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
+import * as api from '../../api/firebaseMethods';
 
 const height = Dimensions.get('window').height;
 
@@ -59,8 +59,8 @@ const CreateRoomPage = (props) => {
             Alert.alert("Server Location Required", "Please choose a server location")
         } else {
             try {
-                await init();
-                await login();
+                await api.init(server);
+                await api.login();
                 const roomCode = await generateUniqueRoomCode();
                 await dispatch(roomActions.createRoom(roomCode, username, server))
             } catch (err) {
@@ -87,11 +87,11 @@ const CreateRoomPage = (props) => {
         // create code
         let code = codeGenerator();
         // verify that code is unique
-        let result = await checkRoom(code);
+        let result = await api.checkRoom(code);
         result = !result;
         while (result) {
             code = codeGenerator();
-            result = await checkRoom(code);
+            result = await api.checkRoom(code);
             result = !result;
         }
         return code;

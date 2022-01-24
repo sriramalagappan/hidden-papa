@@ -352,6 +352,7 @@ const GuessPage = (props) => {
                     transparent={true}
                     onRequestClose={closeHandler}
                     animationType={'fade'}
+                    statusBarTranslucent={true}
                 >
                     <ModalComponent />
                 </Modal>

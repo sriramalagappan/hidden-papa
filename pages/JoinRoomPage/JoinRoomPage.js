@@ -6,11 +6,9 @@ import Button from '../../components/Button'
 import { useDispatch, useSelector } from 'react-redux'
 import DropDownPicker from 'react-native-dropdown-picker';
 import Input from '../../components/Input';
-import { init, login } from '../../api/firebaseMethods';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import ServerLocations from '../../data/ServerLocations';
-import CharacterInput from 'react-native-character-input'
 import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
 
@@ -74,8 +72,8 @@ const JoinRoomPage = (props) => {
             Alert.alert("Server Location Required", "Please choose a server location")
         } else {
             try {
-                await init();
-                await login();
+                await api.init(server);
+                await api.login();
 
                 await dispatch(roomActions.joinRoom(roomCodeInput, username))
             } catch (err) {

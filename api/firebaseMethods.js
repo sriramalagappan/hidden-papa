@@ -1,14 +1,28 @@
 import firebase from "firebase";
 import { Alert } from "react-native";
-import firebaseConfigKorea from '../secrets/keys';
+import firebaseConfigKorea from '../secrets/keysKR';
+import firebaseConfigNA from '../secrets/keysNA';
 import { defaultENWordCategories } from '../data/WordCategories';
 import { ENWords } from '../data/Words';
 // import ENwords from '../data/en-words';
 
-export const init = () => {
+export const init = (loc = "usa") => {
     // only initialize if necessary
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfigKorea);
+        switch(loc) {
+            case "usa": {
+                firebase.initializeApp(firebaseConfigNA);
+                break;
+            }
+            case "korea": {
+                firebase.initializeApp(firebaseConfigKorea);
+                break;
+            }
+            default: {
+                firebase.initializeApp(firebaseConfigNA);
+                break;
+            }
+        }
         //firebase.analytics();
     }
 }
@@ -546,9 +560,6 @@ export const gameOver = async (roomCode, word) => {
 
 export const roomListener = async (roomCode, onChange) => {
     try {
-        // NEED TO REMOVE LOGIN
-        init();
-        await login();
         const db = firebase.firestore();
         const listener = db.collection('rooms').doc(roomCode)
             .onSnapshot((doc) => {
@@ -568,9 +579,6 @@ export const roomListener = async (roomCode, onChange) => {
 
 export const usersListener = async (roomCode, onChange) => {
     try {
-        // NEED TO REMOVE LOGIN
-        init();
-        await login();
         const db = firebase.firestore();
         const listener = db.collection('rooms').doc(roomCode).collection('users')
             .onSnapshot((querySnapshot) => {
@@ -601,9 +609,6 @@ export const usersListener = async (roomCode, onChange) => {
 
 export const gameListener = async (roomCode, onChange) => {
     try {
-        // NEED TO REMOVE LOGIN
-        init();
-        await login();
         const db = firebase.firestore();
         const listener = db.collection('rooms').doc(roomCode).collection('game')
             .onSnapshot((querySnapshot) => {
