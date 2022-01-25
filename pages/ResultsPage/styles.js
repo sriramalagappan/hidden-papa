@@ -24,7 +24,8 @@ export default StyleSheet.create({
     text: {
         flexDirection: 'column',
         marginTop: 35,
-        marginLeft: width * .1,
+        marginLeft: width * .125,
+        width: width * .45
     },
     row: {
         flexDirection: 'row',
@@ -32,5 +33,10 @@ export default StyleSheet.create({
     },
     buttonContainer: {
         marginTop: height * 0.1,
+    },
+    boldText: {
+        fontFamily: 'bold',
+        fontSize: width * .06,
+        marginTop: height * .025,
     }
 });

@@ -73,6 +73,11 @@ export default StyleSheet.create({
         backgroundColor: colors.primary_light
     },
 
+    confetti: {
+        width: width * .9,
+        height: height * .6,
+    },  
+
 
 
     modalContainer: {

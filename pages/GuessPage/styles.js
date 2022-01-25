@@ -107,6 +107,11 @@ export default StyleSheet.create({
         width,
         alignItems:'center',
     },
+    confetti: {
+        width: width * .9,
+        height: height * .6,
+    },  
+
     modalContainer: {
         width: '100%',
         height: '100%',

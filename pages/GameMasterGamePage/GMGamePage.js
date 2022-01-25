@@ -10,9 +10,11 @@ import CountDown from 'react-native-countdown-component';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Button from '../../components/Button';
-
+import LottieView from 'lottie-react-native';
 
 const width = Dimensions.get('window').width;
+
+const confettiAsset = '../../assets/confetti.json';
 
 const GMGamePage = (props) => {
 
@@ -45,19 +47,14 @@ const GMGamePage = (props) => {
     const [guesses, setGuesses] = useState([]);
     const [timeoutId, setTimeoutId] = useState(0);
     const [nav, setNav] = useState(false);
+    const [animation, setAnimation] = useState(null);
+    const [initLoad, setInitLoad] = useState(false);
 
-    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+    const [_, forceUpdate] = useReducer(x => x + 1, 0);
 
     // #endregion
 
     // #region Listeners
-
-    // TODO: Remove later. Use this to reset game time to current
-    const REMOVE = async () => {
-        if (roomCode) {
-            await api.startGame(roomCode)
-        }
-    }
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -127,10 +124,9 @@ const GMGamePage = (props) => {
             guessList.sort(function (a, b) {
                 return b.time - a.time;
             });
-            setGuesses(guessList.slice())
+            setGuesses(guessList.slice());
+            if (!displayGuesses) { playAnimation(); }
         }
-
-        //REMOVE(); setCounterSet(false);
     }, [users]);
 
     useEffect(() => {
@@ -143,10 +139,10 @@ const GMGamePage = (props) => {
                 setStartCounter(lag);
                 const delay = 6000 - lag
                 // set in seconds since thats what the countdown component wants
-                setEndCounter(Math.floor( ((settings.endTime - Date.now()) + delay)/ 1000));
+                setEndCounter(Math.floor(((settings.endTime - Date.now()) + delay) / 1000));
             } else {
                 setStartCounter(0);
-                let gameTimeRemaining = Math.floor((6000 + settings.endTime - Date.now())/ 1000);
+                let gameTimeRemaining = Math.floor((6000 + settings.endTime - Date.now()) / 1000);
                 gameTimeRemaining = (gameTimeRemaining > 0) ? gameTimeRemaining : 0;
                 setEndCounter(gameTimeRemaining);
             }
@@ -163,7 +159,7 @@ const GMGamePage = (props) => {
 
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && users.length && word && gameData && settings && endCounter) {
+        if (roomCode && users && users.length && word && gameData && settings && endCounter && !initLoad) {
             setIsLoading(false);
         }
         else {
@@ -178,6 +174,7 @@ const GMGamePage = (props) => {
             clearTimeout(timeoutId);
 
             setNav(true);
+            setInitLoad(true);
             setIsLoading(true);
 
             // navigate to voting page
@@ -188,7 +185,7 @@ const GMGamePage = (props) => {
                         { name: 'Vote' }
                     ]
                 })
-            )
+            );
         }
     }, [voteSettings])
 
@@ -196,8 +193,9 @@ const GMGamePage = (props) => {
         // see if results have been generated
         if (resultsSettings && resultsSettings.hiddenPapa && !nav) {
             setNav(true);
+            setInitLoad(true);
             setIsLoading(true);
-            
+
             // navigate to results page
             props.navigation.dispatch(
                 CommonActions.reset({
@@ -208,7 +206,7 @@ const GMGamePage = (props) => {
                 })
             )
         }
-    }, [resultsSettings])
+    }, [resultsSettings]);
 
     // #endregion
 
@@ -233,12 +231,21 @@ const GMGamePage = (props) => {
 
     // Host needs to end game once timer runs out
     const onFinishHandler = async () => {
-        const id = setTimeout(async function() {
-            setIsLoading(true);
+        setInitLoad(true);
+        setIsLoading(true);
+        const id = setTimeout(async function () {
             await api.gameOver(roomCode, word);
         }, 3000); // pad 3 seconds
 
         setTimeoutId(id);
+    }
+
+    // play confetti animation
+    const playAnimation = () => {
+        if (animation) {
+            animation.reset();
+            animation.play();
+        }
     }
 
     // #endregion
@@ -358,6 +365,16 @@ const GMGamePage = (props) => {
                     </View>)
                     : (<View />)
                 }
+                <View pointerEvents="none">
+                <LottieView
+                    pointerEvents="none"
+                    ref={ani => { setAnimation(ani); }}
+                    style={styles.confetti}
+                    source={require(confettiAsset)}
+                    loop={false}
+                    autoPlay={false}
+                />
+                </View>
             </Background>
         </View>
     );

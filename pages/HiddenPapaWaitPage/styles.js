@@ -13,11 +13,13 @@ export default StyleSheet.create({
         fontFamily: 'bold',
         fontSize: 30,
         textAlign: 'center',
+        marginHorizontal: 20,
     },
     roleText: {
         fontFamily: 'bold',
         fontSize: width * .065,
-        textAlign: 'center',
+        textAlign: 'center',        
+        marginHorizontal: 20,
     },
     screen: {
         width: width,

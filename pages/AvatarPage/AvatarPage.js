@@ -21,7 +21,7 @@ const AvatarPage = (props) => {
     const [tempAvatar, setTempAvatar] = useState({})
     const [category, setCategory] = useState()
     const [traitItems, setTraitItems] = useState([
-        { label: 'Select a trait', value: 'temp', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle },
+        { label: 'Select a category', value: 'temp', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle },
     ])
     const [defaultTrait, setDefaultTrait] = useState('temp')
 
@@ -287,7 +287,7 @@ const AvatarPage = (props) => {
                             dropDownStyle={DropdownStyles.dropdownItemContainer}
                             onChangeItem={item => setCategory(item.value)}
                             globalTextStyle={DropdownStyles.dropdownSelectedText}
-                            placeholder={"Select a category"}
+                            placeholder={"Category"}
                             dropDownMaxHeight={height * .25}
                             activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                         />
@@ -300,7 +300,7 @@ const AvatarPage = (props) => {
                             dropDownStyle={DropdownStyles.dropdownItemContainer}
                             onChangeItem={item => updateAvatar(item)}
                             globalTextStyle={DropdownStyles.dropdownSelectedText}
-                            placeholder={"Select a trait"}
+                            placeholder={"Trait"}
                             dropDownMaxHeight={height * .25}
                             activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                         />

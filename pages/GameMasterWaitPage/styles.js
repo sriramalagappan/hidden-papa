@@ -14,20 +14,23 @@ export default StyleSheet.create({
         fontFamily: 'bold',
         fontSize: 30,
         textAlign: 'center',
+        marginHorizontal: 20,
     },
 
     subtitle: {
         fontFamily: 'regular',
         fontSize: 20,
         marginTop: height * .15,
-        textAlign: 'center'
+        textAlign: 'center',
+        marginHorizontal: 20,
     },
 
     roleText: {
         fontFamily: 'bold',
         fontSize: width * .065,
         marginTop: height * .1,
-        textAlign: 'center'
+        textAlign: 'center',
+        marginHorizontal: 20,
     },
 
     listContainer: {
@@ -44,6 +47,7 @@ export default StyleSheet.create({
     smallText: {
         fontFamily: 'thin',
         fontSize: 20,
+        marginHorizontal: 20,
     },
     smallTextMargin: {
         fontFamily: 'thin',

@@ -73,7 +73,7 @@ const JoinRoomPage = (props) => {
         } else {
             try {
                 await api.init(server);
-                await api.login();
+                await api.login(server);
 
                 await dispatch(roomActions.joinRoom(roomCodeInput, username))
             } catch (err) {

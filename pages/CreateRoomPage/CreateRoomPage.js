@@ -60,7 +60,7 @@ const CreateRoomPage = (props) => {
         } else {
             try {
                 await api.init(server);
-                await api.login();
+                await api.login(server);
                 const roomCode = await generateUniqueRoomCode();
                 await dispatch(roomActions.createRoom(roomCode, username, server))
             } catch (err) {

@@ -48,6 +48,7 @@ const VotingPage = (props) => {
     const [guessesSet, setGuessesSet] = useState(false);
     const [resultsGenerated, setResultsGenerates] = useState(false);
     const [nav, setNav] = useState(false);
+    const [initLoad, setInitLoad] = useState(false);
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -165,7 +166,7 @@ const VotingPage = (props) => {
 
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && users.length && word && gameData && settings && myPlayer && endCounter) {
+        if (roomCode && users && users.length && word && gameData && settings && myPlayer && endCounter && !initLoad) {
             setIsLoading(false);
         }
         else {
@@ -236,12 +237,12 @@ const VotingPage = (props) => {
 
     // Host needs to end game once timer runs out
     const onFinishHandler = async () => {
+        setInitLoad(true);
+        setIsLoading(true);
         if (myPlayer.isHost) {
             setTimeout(async function() {
-                console.log('Delay done');
-                setIsLoading(true);
                 await generateResults();
-            }, 3000); // pad 3 seconds
+            }, 2000); // pad 2 seconds
         }
     }
 

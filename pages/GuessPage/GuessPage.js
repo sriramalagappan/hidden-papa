@@ -10,14 +10,12 @@ import CountDown from 'react-native-countdown-component';
 import Input from '../../components/Input';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import Button from '../../components/Button';
-import SmallButton from '../../components/SmallButton';
-import BigHead from '../../components/BigHead';
-import colors from '../../theme/colors';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { set } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
 
 const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height;
+
+const confettiAsset = '../../assets/confetti.json';
 
 const GuessPage = (props) => {
 
@@ -45,10 +43,11 @@ const GuessPage = (props) => {
     const [guess, setGuess] = useState('');
     const [visible, setVisible] = useState(false);
     const [modalType, setModalType] = useState(false);
-    const [modalData, setModalData] = useState(null);
     const [guesses, setGuesses] = useState([]);
     const [displayGuesses, toggleGuesses] = useState(false);
     const [nav, setNav] = useState(false);
+    const [animation, setAnimation] = useState(null);
+    const [initLoad, setInitLoad] = useState(false);
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -116,7 +115,8 @@ const GuessPage = (props) => {
             guessList.sort(function (a, b) {
                 return b.time - a.time;
             });
-            setGuesses(guessList.slice())
+            setGuesses(guessList.slice());
+            if (!displayGuesses) { playAnimation(); }
         }
 
         //setCounterSet(false)
@@ -148,6 +148,7 @@ const GuessPage = (props) => {
         // see if we are in voting phase
         if (voteSettings && voteSettings.endTime && !nav) {
             setNav(true);
+            setInitLoad(true);
             setIsLoading(true);
 
             props.navigation.dispatch(
@@ -165,8 +166,9 @@ const GuessPage = (props) => {
         // see if results have been generated
         if (resultsSettings && resultsSettings.hiddenPapa && !nav) {
             setNav(true);
+            setInitLoad(true);
             setIsLoading(true);
-            
+
             // navigate to results page
             props.navigation.dispatch(
                 CommonActions.reset({
@@ -187,7 +189,7 @@ const GuessPage = (props) => {
 
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && users.length && word && gameData && settings && myPlayer) {
+        if (roomCode && users && users.length && word && gameData && settings && myPlayer && !initLoad) {
             setIsLoading(false);
         }
         else {
@@ -203,7 +205,7 @@ const GuessPage = (props) => {
         if (myPlayer) {
             if (guess) {
                 const newData = { ...myPlayer };
-                
+
                 // Check id the player data has a guess list, otherwise create it
                 if (!newData.guesses) {
                     newData.guesses = []
@@ -243,19 +245,17 @@ const GuessPage = (props) => {
         setVisible(true);
     }
 
-    const voteModal = (player) => {
-        if (myPlayer.vote) {
-            Alert.alert(
-                "Voting Error",
-                "You have already voted",
-                [
-                    { text: "OK" }
-                ]
-            );
-        } else {
-            setModalType('voteConfirm');
-            setModalData(player);
-            setVisible(true);
+    // Host needs to end game once timer runs out
+    const onFinishHandler = async () => {
+        setInitLoad(true);
+        setIsLoading(true);
+    }
+
+    // play confetti animation
+    const playAnimation = () => {
+        if (animation) {
+            animation.reset();
+            animation.play();
         }
     }
 
@@ -263,19 +263,6 @@ const GuessPage = (props) => {
         toggleGuesses(!displayGuesses);
     }
 
-
-    const renderPlayer = (itemData) => (
-        <View key={itemData.item.username} style={styles.player}>
-            <TouchableOpacity onPress={() => { voteModal(itemData.item) }}>
-                {itemData.item.vote ?
-                    (<Ionicons style={styles.readyIcon} name={'checkmark-circle'} size={25} color={colors.green} />)
-                    : (<View />)
-                }
-                <BigHead avatar={itemData.item.avatar} size={width * .23} />
-                <Text style={styles.playerText}>{itemData.item.username}</Text>
-            </TouchableOpacity>
-        </View>
-    )
 
     const renderGuess = (itemData) => (
         <View key={itemData.item.time} style={styles.guessContainer}>
@@ -292,23 +279,6 @@ const GuessPage = (props) => {
                         <TouchableOpacity style={styles.modal} activeOpacity={1}>
                             <View style={styles.modalBody}>
                                 <Button>Return to Home</Button>
-                            </View>
-                        </TouchableOpacity>
-                    </TouchableOpacity>
-                )
-            }
-            case 'voteConfirm': {
-                if (!modalData) return (<View />)
-
-                return (
-                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
-                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
-                            <View style={styles.modalBody}>
-                                <Text style={styles.modalTitle}>Are you sure you want to vote for {modalData.username}?</Text>
-                                <View style={styles.row}>
-                                    <SmallButton onPress={closeHandler}>No</SmallButton>
-                                    <SmallButton onPress={() => { makeVote(modalData.username) }}>Yes</SmallButton>
-                                </View>
                             </View>
                         </TouchableOpacity>
                     </TouchableOpacity>
@@ -374,7 +344,7 @@ const GuessPage = (props) => {
                     <CountDown
                         until={endCounter}
                         size={width * .1}
-                        onFinish={() => { }}
+                        onFinish={() => { onFinishHandler() }}
                         digitStyle={styles.digitStyle}
                         digitTxtStyle={styles.digitTextStyle}
                         timeToShow={['M', 'S']}
@@ -399,7 +369,7 @@ const GuessPage = (props) => {
                         />
                     </View>
                 </TouchableWithoutFeedback>
-                
+
                 <Button onPress={makeGuess}>Submit</Button>
 
                 {(displayGuesses) ?
@@ -413,6 +383,14 @@ const GuessPage = (props) => {
                     </View>)
                     : (<View />)
                 }
+
+                <LottieView
+                    ref={ani => { setAnimation(ani); }}
+                    style={styles.confetti}
+                    source={require(confettiAsset)}
+                    loop={false}
+                    autoPlay={false}
+                />
             </Background>
         </View>
     );

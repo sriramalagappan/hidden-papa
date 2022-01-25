@@ -6,10 +6,10 @@ import { defaultENWordCategories } from '../data/WordCategories';
 import { ENWords } from '../data/Words';
 // import ENwords from '../data/en-words';
 
-export const init = (loc = "usa") => {
-    // only initialize if necessary
-    if (!firebase.apps.length) {
-        switch(loc) {
+export const init = async (loc = "usa") => {
+    // don't init if already done
+    if (firebase.apps.length === 0) {
+        switch (loc) {
             case "usa": {
                 firebase.initializeApp(firebaseConfigNA);
                 break;
@@ -22,8 +22,8 @@ export const init = (loc = "usa") => {
                 firebase.initializeApp(firebaseConfigNA);
                 break;
             }
+            //firebase.analytics();
         }
-        //firebase.analytics();
     }
 }
 
@@ -285,6 +285,21 @@ export const updateCategories = async (roomCode, wordCategories) => {
     }
 }
 
+export const updateTimeLimit = async (roomCode, gameTimeLength) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        await roomRef.set({
+            gameTimeLength,
+        }, { merge: true });
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log(errorMessage);
+        throw err;
+    }
+}
+
 export const selectWord = async (roomCode, word) => {
     try {
         const db = firebase.firestore();
@@ -412,13 +427,20 @@ export const generateResults = async (roomCode, word) => {
         // check player votes
         let votes = [];
         const noVote = '__________NO VOTE__________';
+        let hiddenPapa = '';
 
-        users.forEach(async (user) => {
+        for (let i = 0; i < users.length; i++) {
+            const user = users[i];
             const userRef = roomRef.collection('users').doc(user);
-            
+    
             await userRef.get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
+
+                    // find hidden papa for next part
+                    if (data.role === 'hidden-papa') { 
+                        hiddenPapa = data.username; 
+                    }
 
                     if (data.vote) {
                         votes.push(data.vote);
@@ -427,20 +449,18 @@ export const generateResults = async (roomCode, word) => {
                     }
                 }
             });
-        });
+        };
 
         let updateObject = {
             role: firebase.firestore.FieldValue.delete(),
             guesses: firebase.firestore.FieldValue.delete(),
             vote: firebase.firestore.FieldValue.delete(),
             isReady: false,
-        }
-
-        let hiddenPapa;
+        };
 
         // find majority vote and see if it was correct        
-        const gameWon = (findMajority(votes) === hiddenPapa) ? 1 : 0 // needs to be an integer
-            
+        const gameWon = (findMajority(votes) === hiddenPapa) ? 1 : 0; // needs to be an integer
+    
         // update player stats
         users.forEach(async (user) => {
             const userRef = roomRef.collection('users').doc(user);
@@ -449,7 +469,6 @@ export const generateResults = async (roomCode, word) => {
                     const data = doc.data();
                     let update;
                     if (data.role === 'hidden-papa') {
-                        hiddenPapa = data.username; // find username of hidden papa
                         update = (gameWon) ? {
                             gamesPlayed: data.gamesPlayed + 1,
                             ...updateObject
@@ -473,16 +492,15 @@ export const generateResults = async (roomCode, word) => {
             });
         });
 
-        const resultObject = {hiddenPapa, votes, word, gameWon};
+        const resultObj = { hiddenPapa, votes, word, gameWon };
 
         // push result to db
-        await roomRef.collection("game").doc('results').set(resultObject);
+        await roomRef.collection("game").doc('results').set(resultObj);
 
         // cleanup db
         await roomRef.collection('game').doc('words').delete();
         await roomRef.collection('game').doc('settings').delete();
         await roomRef.collection('game').doc('voting').delete();
-
     } catch (err) {
         const errorMessage = err.message;
         console.log(errorMessage);
@@ -517,9 +535,10 @@ export const gameOver = async (roomCode, word) => {
 
         // find hidden papa
         let hiddenPapa;
-            
+
         // update player stats
-        users.forEach(async (user) => {
+        for (let i = 0; i < users.length; i++) {
+            const user = users[i];
             const userRef = roomRef.collection('users').doc(user);
             await userRef.get().then(async (doc) => {
                 if (doc.exists) {
@@ -537,9 +556,11 @@ export const gameOver = async (roomCode, word) => {
                     if (data.role === 'hidden-papa') hiddenPapa = data.username;
                 }
             });
-        });
+        }
 
-        const resultObject = {hiddenPapa, votes, word, gameWon: -1};
+        const votes = [];
+
+        const resultObject = { hiddenPapa, votes, word, gameWon: -1 };
 
         // push result to db
         await roomRef.collection("game").doc('results').set(resultObject);
@@ -648,31 +669,30 @@ const createRoles = (len) => {
 }
 
 // Function to find majority element
-function findMajority(arr)
-  {
+function findMajority(arr) {
     var count = 0, candidate = -1;
- 
+
     // Finding majority candidate
     for (var index = 0; index < arr.length; index++) {
-      if (count == 0) {
-        candidate = arr[index];
-        count = 1;
-      }
-      else {
-        if (arr[index] == candidate)
-          count++;
-        else
-          count--;
-      }
+        if (count == 0) {
+            candidate = arr[index];
+            count = 1;
+        }
+        else {
+            if (arr[index] == candidate)
+                count++;
+            else
+                count--;
+        }
     }
- 
+
     // Checking if majority candidate occurs more than n/2 times
     for (var index = 0; index < arr.length; index++) {
-      if (arr[index] == candidate)
-        count++;
+        if (arr[index] == candidate)
+            count++;
     }
     if (count > (arr.length / 2))
-      return candidate;
+        return candidate;
     return -1;
 
-  }
+}

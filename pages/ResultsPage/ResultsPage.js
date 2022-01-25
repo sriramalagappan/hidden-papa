@@ -177,8 +177,8 @@ const ResultsPage = (props) => {
                 <Text style={styles.title}>{title()}</Text>
                 <View style={styles.row}>
                     <View style={styles.text}>
-                        <Text style={styles.subtitle}>{'Word: ' + word}</Text>
-                        <Text style={styles.subtitle}>{'Hidden Papa: ' + hiddenPapa}</Text>
+                        <Text style={styles.subtitle}>{'Word: '}<Text style={styles.boldText}>{word}</Text></Text>
+                        <Text style={styles.subtitle}>{'Hidden Papa: '}<Text style={styles.boldText}>{hiddenPapa}</Text></Text>
                     </View>
                     <BigHead avatar={avatar()} size={width * .4} />
                 </View>

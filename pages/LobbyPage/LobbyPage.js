@@ -15,6 +15,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { enWordCategories } from '../../data/WordCategories';
 import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
+import Input from '../../components/Input';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -81,7 +82,7 @@ const LobbyPage = (props) => {
 
     // set isLoading to false once we received all data
     useEffect(() => {
-        if (roomCode && users && (users.length) && gameTimeLength && gameDifficulty && categories.length) {
+        if (roomCode && users && (users.length) && gameDifficulty && categories.length) {
             setIsLoading(false)
         }
         else {
@@ -181,6 +182,10 @@ const LobbyPage = (props) => {
         }
     }, [server])
 
+    useEffect(() => {
+
+    }, []);
+
     // determine if I'm host
     const isHost = () => {
         return (myPlayer && myPlayer.isHost);
@@ -258,10 +263,8 @@ const LobbyPage = (props) => {
 
     // open modal for game settings
     const openGameSettingsModal = () => {
-        if (isHost()) {
-            setModalType('gameSettingsEdit');
-            setVisible(true);
-        }
+        setModalType('gameSettingsEdit');
+        setVisible(true);
         //else setModalType('gameSettingsView')
     }
 
@@ -274,6 +277,17 @@ const LobbyPage = (props) => {
 
     const setCategories = async (tempCategories) => {
         await api.updateCategories(roomCode, tempCategories);
+    }
+
+    const setTimeLimit = async (newLimit) => {
+        if (!isNaN(newLimit)) {
+            // multiply by 1000 to convert sec to ms
+            const parsed = Math.abs(parseInt(newLimit)) * 1000;
+
+            if (parsed >= 60000 && parsed <= 600000) {
+                await api.updateTimeLimit(roomCode, (parsed));
+            }
+        }
     }
 
     // --------------------------------------------------------------
@@ -327,9 +341,15 @@ const LobbyPage = (props) => {
 
                 // Need to keep local copy and update functions here for performance
                 let localCategories = categories
+                const curTimeLimit = (gameTimeLength / 1000).toString();
+                let newTimeLimit;
 
                 const updateLocal = (items) => {
                     localCategories = items
+                }
+
+                const updateLimit = (limit) => {
+                    if (!isNaN(limit)) newTimeLimit = limit;
                 }
 
                 const callSetCategories = async () => {
@@ -339,6 +359,7 @@ const LobbyPage = (props) => {
                 // special modal closer to ensure catagories are saved
                 const closeHandlerGS = async () => {
                     setCategories(localCategories)
+                    setTimeLimit(newTimeLimit);
                     setVisible(false)
                     setModalData({})
                     setModalType('')
@@ -351,6 +372,24 @@ const LobbyPage = (props) => {
                         <TouchableOpacity style={styles.modal} activeOpacity={1}>
                             <View style={styles.modalBodyGameSettings}>
                                 <Text style={styles.modalPlayerText}>Game Settings</Text>
+                                <View style={styles.marginLrg} />
+                                <Text style={styles.smallText}>Time Limit (sec): </Text>
+                                <Input
+                                    onChangeText={updateLimit}
+                                    value={newTimeLimit}
+                                    placeholder={curTimeLimit}
+                                    keyboardType={"numeric"}
+                                    autoCapitalize={"none"}
+                                    autoCorrect={false}
+                                    maxLength={3}
+                                    multiline={false}
+                                    numberOfLines={1}
+                                    textAlign={"center"}
+                                    editable={isHost()}
+                                />
+                                <View style={styles.marginSml} />
+                                <Text style={styles.smallText}>(1-10 minutes)</Text>
+                                <View style={styles.marginLrg} />
                                 <View style={styles.marginLrg} />
                                 <Text style={styles.smallText}>Select Word Categories: </Text>
                                 <View style={styles.marginSml} />
@@ -369,6 +408,7 @@ const LobbyPage = (props) => {
                                     multipleText={"%d " + dropDownText + " been selected."}
                                     min={1}
                                     onClose={callSetCategories}
+                                    disabled={!isHost()}
                                 />
                             </View>
                         </TouchableOpacity>
