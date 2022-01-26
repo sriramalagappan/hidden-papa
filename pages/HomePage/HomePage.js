@@ -12,6 +12,8 @@ import Background from '../../components/Background';
 
 const HomePage = (props) => {
 
+    // #region Variables
+
     // Redux Store State Variable
     const avatar = useSelector(state => state.avatar.avatar);
 
@@ -19,9 +21,12 @@ const HomePage = (props) => {
     const [avatarCopy, setAvatarCopy] = useState({}) // used for performance
     const [isLoading, setIsLoading] = useState(true)
 
-    
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
+
+    // #endregion
+
+    // #region UseEffect
 
     // componentDidMount
     useFocusEffect(
@@ -49,7 +54,11 @@ const HomePage = (props) => {
         }
     }, [avatar, isLoading])
 
-    const AvatarButtonHandler = () => {
+    // #endregion
+
+    // #region Functions
+
+    const AvatarPageRoute = () => {
         props.navigation.navigate('Avatar');
     }
 
@@ -61,6 +70,14 @@ const HomePage = (props) => {
         props.navigation.navigate('JoinRoom');
     }
 
+    const SettingsPageRoute = () => {
+        props.navigation.navigate('Settings');
+    }
+
+    // #endregion
+
+    // #region UI
+
     return (
         <View style={styles.container}>
             <Background justify={false}>
@@ -68,12 +85,14 @@ const HomePage = (props) => {
                 <HomeButtonLarge text={"Create a Room"} icon={"create-outline"} onPress={CreateRoomRoute} />
                 <HomeButtonLarge text={"Join a Room"} icon={"add-outline"} onPress={JoinRoomRoute} />
                 <View style={styles.smallButtonContainer}>
-                    <HomeButtonAvatar avatar={avatarCopy} onPress={AvatarButtonHandler} />
-                    <HomeButtonSmall text={"About"} icon={"information-circle-outline"} />
+                    <HomeButtonAvatar avatar={avatarCopy} onPress={AvatarPageRoute} />
+                    <HomeButtonSmall text={"Settings"} icon={"settings"} onPress={SettingsPageRoute} />
                 </View>
             </Background>
         </View>
     );
+
+    // #endregion
 };
 
 export default HomePage;
