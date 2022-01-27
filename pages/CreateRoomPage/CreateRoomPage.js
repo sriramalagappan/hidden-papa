@@ -42,9 +42,11 @@ const CreateRoomPage = (props) => {
 
     // Stateful Variables
     const [username, setUsername] = useState('');
-    const [server, setServer] = useState('');
+    //const [server, setServer] = useState('');
     const [isLoading, setIsLoading] = useState(false)
     const [nav, setNav] = useState(false);
+
+    const server = "usa";
 
     const updateUsername = (newUsername) => {
         setUsername(newUsername);
@@ -114,7 +116,7 @@ const CreateRoomPage = (props) => {
                         textAlign={"left"}
                     />
                 </View>
-                <View style={styles.dropdownContainer}>
+                {/* <View style={styles.dropdownContainer}>
                     <DropDownPicker
                         items={ServerLocations}
                         containerStyle={styles.dropdownStyle}
@@ -127,7 +129,7 @@ const CreateRoomPage = (props) => {
                         dropDownMaxHeight={height * .3}
                         activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                     />
-                </View>
+                </View> */}
                 <View style={styles.buttonContainer}>
                     <Button onPress={createRoomHandler} isLoading={isLoading}>Create Room</Button>
                 </View>

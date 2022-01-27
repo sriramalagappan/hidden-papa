@@ -18,10 +18,11 @@ const Input = props => {
                 multiline={props.multiline}
                 numberOfLines={props.numberOfLines}
                 textAlign={props.textAlign}
-                placeholderTextColor={"#282828"}
+                placeholderTextColor={props.placeholderTextColor ? props.placeholderTextColor : "#282828"}
                 onSubmitEditing={props.onSubmitEditing}
                 onEndEditing={props.onEndEditing}
                 editable={props.editable}
+                onFocus={props.onFocus}
             />
             {props.children}
         </View>

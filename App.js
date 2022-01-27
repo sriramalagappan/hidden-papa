@@ -19,13 +19,15 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk'
 import avatarReducer from './store/reducers/avatar';
 import roomReducer from './store/reducers/room';
+import wordsReducer from './store/reducers/words';
 import { LogBox } from 'react-native';
 import _ from 'lodash';
 
 const rootReducer = combineReducers({
   avatar: avatarReducer,
   room: roomReducer,
-})
+  words: wordsReducer,
+});
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk))
 

@@ -42,10 +42,12 @@ const JoinRoomPage = (props) => {
 
     // Stateful Variables
     const [username, setUsername] = useState('');
-    const [server, setServer] = useState('');
+    //const [server, setServer] = useState('');
     const [roomCodeInput, setRoomCodeInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [nav, setNav] = useState(false);
+
+    const server = "usa" // default server for now
 
     const updateRoomCode = (input) => {
         if (input.length <= 6) {
@@ -115,7 +117,7 @@ const JoinRoomPage = (props) => {
                         textAlign={"left"}
                     />
                 </View>
-                <View style={styles.dropdownContainer}>
+                {/* <View style={styles.dropdownContainer}>
                     <DropDownPicker
                         items={ServerLocations}
                         containerStyle={styles.dropdownStyle}
@@ -128,7 +130,7 @@ const JoinRoomPage = (props) => {
                         dropDownMaxHeight={height * .3}
                         activeLabelStyle={DropdownStyles.dropdownSelectedItem}
                     />
-                </View>
+                </View> */}
                 <View style={styles.buttonContainer}>
                     <Button onPress={joinRoomHandler} isLoading={isLoading}>Join Room</Button>
                 </View>

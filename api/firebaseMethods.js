@@ -4,7 +4,7 @@ import firebaseConfigKorea from '../secrets/keysKR';
 import firebaseConfigNA from '../secrets/keysNA';
 import { defaultENWordCategories } from '../data/WordCategories';
 import { ENWords } from '../data/Words';
-// import ENwords from '../data/en-words';
+import * as wordActions from '../store/actions/words';
 
 export const init = async (loc = "usa") => {
     // don't init if already done
@@ -240,18 +240,22 @@ export const gameSetup = async (roomCode) => {
             }
         });
 
+        // merge default and stored words
+        const customWords = await wordActions.getWordsFromStorage();
+        const mergedWords = (customWords) ? [...ENWords, ...customWords] : [...ENWords];
+
         // get subset of words given categories
-        let words = ENWords.filter(word => categories.indexOf(word.category) !== -1)
+        let filteredWords = mergedWords.filter(word => categories.indexOf(word.category) !== -1)
 
         // select three unique words randomly
-        let firstWord = words[Math.floor((Math.random() * words.length))].text;
-        let secondWord = words[Math.floor((Math.random() * words.length))].text;
+        let firstWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
+        let secondWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         while (secondWord === firstWord) {
-            secondWord = words[Math.floor((Math.random() * words.length))].text;
+            secondWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         }
-        let thirdWord = words[Math.floor((Math.random() * words.length))].text;
+        let thirdWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         while (thirdWord === firstWord || thirdWord === secondWord) {
-            thirdWord = words[Math.floor((Math.random() * words.length))].text;
+            thirdWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         }
 
         const wordChoices = [firstWord, secondWord, thirdWord]
@@ -359,7 +363,7 @@ export const startGame = async (roomCode) => {
         // set game end timestamp
         await roomRef.collection("game")
             .doc('settings').set({
-                // add 5 sec as padding for potential lag
+                // add 6 sec as padding for potential lag
                 startTime: Date.now() + 6000,
                 endTime: Date.now() + gameTimeLength
             });
@@ -432,14 +436,14 @@ export const generateResults = async (roomCode, word) => {
         for (let i = 0; i < users.length; i++) {
             const user = users[i];
             const userRef = roomRef.collection('users').doc(user);
-    
+
             await userRef.get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
 
                     // find hidden papa for next part
-                    if (data.role === 'hidden-papa') { 
-                        hiddenPapa = data.username; 
+                    if (data.role === 'hidden-papa') {
+                        hiddenPapa = data.username;
                     }
 
                     if (data.vote) {
@@ -460,7 +464,7 @@ export const generateResults = async (roomCode, word) => {
 
         // find majority vote and see if it was correct        
         const gameWon = (findMajority(votes) === hiddenPapa) ? 1 : 0; // needs to be an integer
-    
+
         // update player stats
         users.forEach(async (user) => {
             const userRef = roomRef.collection('users').doc(user);

@@ -16,6 +16,7 @@ import { enWordCategories } from '../../data/WordCategories';
 import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
 import Input from '../../components/Input';
+import * as wordActions from '../../store/actions/words';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -23,7 +24,7 @@ const height = Dimensions.get('window').height;
 const LobbyPage = (props) => {
 
     // store dispatch function in variable to use elsewhere
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     // Redux Store-State Variables
     const roomCode = useSelector(state => state.room.roomCode);
@@ -34,6 +35,7 @@ const LobbyPage = (props) => {
     const me = useSelector(state => state.room.me);
     const msg = useSelector(state => state.room.roomData.msg);
     const categories = useSelector(state => state.room.roomData.wordCategories);
+    const wordPacks = useSelector(state => state.words.wordPacks);
 
     // Stateful Variables
     const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +46,7 @@ const LobbyPage = (props) => {
     const [serverTag, setServerTag] = useState('');
     const [modalData, setModalData] = useState({});
     const [navigate, setNavigate] = useState(false);
+    const [mergedWordPacks, setWordPacks] = useState(null);
 
     // Update Room State for listener function
     const updateRoomState = (data) => {
@@ -58,6 +61,11 @@ const LobbyPage = (props) => {
             dispatch(roomActions.updateUsersData(data))
         }
     }
+
+    // componentDidMount
+    useEffect(() => {
+        dispatch(wordActions.getWordPacks());
+    }, [])
 
     // get listener for room on mount (and only if roomCode is given)
     useEffect(() => {
@@ -183,8 +191,20 @@ const LobbyPage = (props) => {
     }, [server])
 
     useEffect(() => {
-
-    }, []);
+        // merge custom word packs with default word packs
+        const newWordPack = [...enWordCategories];
+        if (wordPacks && wordPacks.length > 0) {
+            newWordPack.push({ label: 'Custom Word Packs', value: 'custom', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle });
+            for (let i = 0; i < wordPacks.length; i++) {
+                const wordPack = wordPacks[i];
+                const wordPackObj = { label: wordPack, value: wordPack, parent: 'custom', textStyle: DropdownStyles.dropdownItemText}
+                newWordPack.push(wordPackObj);
+            }
+        } else {
+            newWordPack.push({ label: 'Add your own word packs in the settings page!', value: '_', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle });
+        }
+        setWordPacks(newWordPack);
+    }, [wordPacks]);
 
     // determine if I'm host
     const isHost = () => {
@@ -340,16 +360,16 @@ const LobbyPage = (props) => {
             case 'gameSettingsEdit': {
 
                 // Need to keep local copy and update functions here for performance
-                let localCategories = categories
                 const curTimeLimit = (gameTimeLength / 1000).toString();
-                let newTimeLimit;
+                const [localTimeLimit, setLocalTimeLimit] = useState(curTimeLimit);
+                const [localCategories, setLocalCategories] = useState(categories);
 
                 const updateLocal = (items) => {
-                    localCategories = items
+                    setLocalCategories(items)
                 }
 
                 const updateLimit = (limit) => {
-                    if (!isNaN(limit)) newTimeLimit = limit;
+                    if (!isNaN(limit)) setLocalTimeLimit(limit);
                 }
 
                 const callSetCategories = async () => {
@@ -359,7 +379,7 @@ const LobbyPage = (props) => {
                 // special modal closer to ensure catagories are saved
                 const closeHandlerGS = async () => {
                     setCategories(localCategories)
-                    setTimeLimit(newTimeLimit);
+                    setTimeLimit(localTimeLimit);
                     setVisible(false)
                     setModalData({})
                     setModalType('')
@@ -367,53 +387,81 @@ const LobbyPage = (props) => {
 
                 const dropDownText = (localCategories.length === 1) ? 'item has' : 'items have';
 
-                return (
-                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandlerGS}>
-                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
-                            <View style={styles.modalBodyGameSettings}>
-                                <Text style={styles.modalPlayerText}>Game Settings</Text>
-                                <View style={styles.marginLrg} />
-                                <Text style={styles.smallText}>Time Limit (sec): </Text>
-                                <Input
-                                    onChangeText={updateLimit}
-                                    value={newTimeLimit}
-                                    placeholder={curTimeLimit}
-                                    keyboardType={"numeric"}
-                                    autoCapitalize={"none"}
-                                    autoCorrect={false}
-                                    maxLength={3}
-                                    multiline={false}
-                                    numberOfLines={1}
-                                    textAlign={"center"}
-                                    editable={isHost()}
-                                />
-                                <View style={styles.marginSml} />
-                                <Text style={styles.smallText}>(1-10 minutes)</Text>
-                                <View style={styles.marginLrg} />
-                                <View style={styles.marginLrg} />
-                                <Text style={styles.smallText}>Select Word Categories: </Text>
-                                <View style={styles.marginSml} />
-                                <DropDownPicker
-                                    items={enWordCategories}
-                                    defaultValue={categories}
-                                    containerStyle={styles.dropdownStyle}
-                                    style={styles.primaryDropdown}
-                                    itemStyle={DropdownStyles.dropdownItem}
-                                    dropDownStyle={DropdownStyles.dropdownItemContainer}
-                                    onChangeItem={items => updateLocal(items)}
-                                    globalTextStyle={DropdownStyles.dropdownSelectedText}
-                                    dropDownMaxHeight={height * .25}
-                                    activeLabelStyle={DropdownStyles.dropdownSelectedItem}
-                                    multiple={true}
-                                    multipleText={"%d " + dropDownText + " been selected."}
-                                    min={1}
-                                    onClose={callSetCategories}
-                                    disabled={!isHost()}
-                                />
-                            </View>
+                if (isHost()) {
+                    return (
+                        <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandlerGS}>
+                            <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                                <View style={styles.modalBodyGameSettings}>
+                                    <Text style={styles.modalPlayerText}>Game Settings</Text>
+                                    <View style={styles.marginLrg} />
+                                    <Text style={styles.smallText}>Time Limit (sec): </Text>
+                                    <Input
+                                        onChangeText={updateLimit}
+                                        value={localTimeLimit}
+                                        keyboardType={"numeric"}
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        maxLength={3}
+                                        multiline={false}
+                                        numberOfLines={1}
+                                        textAlign={"center"}
+                                        editable={isHost()}
+                                    />
+                                    <View style={styles.marginSml} />
+                                    <Text style={styles.smallText}>(1-10 minutes)</Text>
+                                    <View style={styles.marginLrg} />
+                                    <View style={styles.marginLrg} />
+                                    <Text style={styles.smallText}>Select Word Categories: </Text>
+                                    <View style={styles.marginSml} />
+                                    <DropDownPicker
+                                        items={mergedWordPacks}
+                                        defaultValue={categories}
+                                        containerStyle={styles.dropdownStyle}
+                                        style={styles.primaryDropdown}
+                                        itemStyle={DropdownStyles.dropdownItem}
+                                        dropDownStyle={DropdownStyles.dropdownItemContainer}
+                                        onChangeItem={items => updateLocal(items)}
+                                        globalTextStyle={DropdownStyles.dropdownSelectedText}
+                                        dropDownMaxHeight={height * .25}
+                                        activeLabelStyle={DropdownStyles.dropdownSelectedItem}
+                                        multiple={true}
+                                        multipleText={"%d " + dropDownText + " been selected."}
+                                        min={1}
+                                        onClose={callSetCategories}
+                                        disabled={!isHost()}
+                                    />
+                                </View>
+                            </TouchableOpacity>
                         </TouchableOpacity>
-                    </TouchableOpacity>
-                )
+                    );
+                } else {
+                    return (
+                        <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandlerGS}>
+                            <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                                <View style={styles.modalBodyGameSettings}>
+                                    <Text style={styles.modalPlayerText}>Game Settings</Text>
+                                    <View style={styles.marginLrg} />
+                                    <Text style={styles.smallText}>Time Limit (sec): </Text>
+                                    <Input
+                                        onChangeText={updateLimit}
+                                        value={localTimeLimit}
+                                        placeholder={curTimeLimit}
+                                        keyboardType={"numeric"}
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        maxLength={3}
+                                        multiline={false}
+                                        numberOfLines={1}
+                                        textAlign={"center"}
+                                        editable={isHost()}
+                                    />
+                                    <View style={styles.marginSml} />
+                                    <Text style={styles.smallText}>(1-10 minutes)</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </TouchableOpacity>
+                    );
+                }
             }
             default: {
                 return (

@@ -5,5 +5,6 @@ export default {
     brown: '#34252f',
     teal: '#084c61',
     primary_light: '#e3a3af',
-    primary_dark: '#491922'
+    primary_dark: '#491922',
+    placeholder: '#a8a8a8',
 }
