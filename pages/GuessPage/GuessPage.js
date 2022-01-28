@@ -214,7 +214,7 @@ const GuessPage = (props) => {
                 newData.guesses.push({ guess, time: Date.now() });
                 await api.updateUser(roomCode, me, newData);
 
-                if (guess === word) {
+                if (guess.toLowerCase() === word.toLowerCase()) {
                     await api.votingSetup(roomCode, me, settings.startTime);
                 }
             }

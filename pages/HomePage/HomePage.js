@@ -83,7 +83,7 @@ const HomePage = (props) => {
             <Background justify={false}>
                 <View style={styles.margin} />
                 <HomeButtonLarge text={"Create a Room"} icon={"create-outline"} onPress={CreateRoomRoute} />
-                <HomeButtonLarge text={"Join a Room"} icon={"add-outline"} onPress={JoinRoomRoute} />
+                <HomeButtonLarge text={"Join a Room"} icon={"people"} onPress={JoinRoomRoute} />
                 <View style={styles.smallButtonContainer}>
                     <HomeButtonAvatar avatar={avatarCopy} onPress={AvatarPageRoute} />
                     <HomeButtonSmall text={"Settings"} icon={"settings"} onPress={SettingsPageRoute} />

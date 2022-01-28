@@ -10,11 +10,11 @@ const Button = props => {
         TouchableCmp = TouchableNativeFeedback
     }
 
-    const buttonContainerStyle = (props.border) ? styles.containerBorder : styles.container
+    const buttonContainerStyle = (props.border) ? styles.containerBorder : styles.container;
 
     return (
         <View style={buttonContainerStyle}>
-            <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={props.onPress}>
+            <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={props.onPress} disabled={props.disabled}>
                 <View style={{ ...styles.button, ...props.style }}>
                     {props.isLoading ?
                         (

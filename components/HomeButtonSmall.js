@@ -1,9 +1,23 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TouchableNativeFeedback, Platform, Dimensions } from 'react-native';
 import colors from '../theme/colors';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 const HomeButton = (props) => {
+
+    const IconComponent = () => {
+        switch (props.iconComponent) {
+            case 'Ionicons': {
+                return <Ionicons name={props.icon} size={50} color="black" />
+            }
+            case 'MaterialIcons': {
+                return <MaterialIcons name={props.icon} size={50} color="black" />
+            }
+            default: {
+                return <Ionicons name={props.icon} size={50} color="black" />
+            }
+        }
+    }
 
     let TouchableCmp = TouchableOpacity
 
@@ -16,7 +30,7 @@ const HomeButton = (props) => {
             <TouchableCmp style={(Platform.OS === 'android') ? { flex: 1 } : null} onPress={props.onPress}>
                 <View style={styles.button}>
                     <View style={styles.icon}>
-                        <Ionicons name={props.icon} size={50} color="black" />
+                        <IconComponent />
                     </View>
                     <View style={styles.textContainer}>
                         <Text style={styles.text}>{props.text}</Text>

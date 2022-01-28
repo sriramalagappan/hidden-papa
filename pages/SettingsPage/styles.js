@@ -97,6 +97,12 @@ export default StyleSheet.create({
     smallText: {
         fontFamily: 'thin',
         fontSize: 15,
+        textAlign: 'center',
+    },
+    smallTextBold: {
+        fontFamily: 'bold',
+        fontSize: 12,
+        textAlign: 'center',
     },
     dropdownStyle: {
         height: height * .06,
@@ -133,5 +139,14 @@ export default StyleSheet.create({
         width: width * .75,
         height: height * .35,
         padding: 5,
-    }
+    },
+
+    row: {
+        justifyContent: 'center',
+        flexDirection: 'row',
+    },
+    dropdownStyle: {
+        height: height * .06,
+        width: width * .7,
+    },
 });
