@@ -31,6 +31,9 @@ export default StyleSheet.create({
     player: {
         width: width * .23,
         alignItems: 'center',
+        marginHorizontal: 1,
+        //borderRadius: 5,
+        //backgroundColor: colors.primary_light
     },
     playerText: {
         color: 'black',
@@ -85,6 +88,7 @@ export default StyleSheet.create({
         position: 'absolute',
         right: width * .01,
         top: height * .01,
+        zIndex: 99,
     },
     msgContainer: {
         marginTop: height * .03
@@ -144,7 +148,13 @@ export default StyleSheet.create({
                 alignItems: 'center',
             },
         }),
-        alignItems: 'center'
+        alignItems: 'center',
+    },
+
+    modalBodyGameRuleSettings: {
+        padding: 15,
+        height: height * .8,
+        width: width * .8,
     },
 
     modalRow: {
@@ -163,6 +173,7 @@ export default StyleSheet.create({
     modalPlayerText: {
         fontFamily: 'bold',
         fontSize: 25,
+        textAlign: 'center'
     },
     marginLrg: {
         marginTop: 20,
@@ -180,6 +191,16 @@ export default StyleSheet.create({
     smallText: {
         fontFamily: 'thin',
         fontSize: 15,
+    },
+    smallTextLeft: {
+        fontFamily: 'thin',
+        fontSize: 15,
+        textAlign: 'left'
+    },
+    smallTextBold: {
+        fontFamily: 'bold',
+        fontSize: 15,
+        textAlign: 'left'
     },
     dropdownStyle: {
         height: height * .06,

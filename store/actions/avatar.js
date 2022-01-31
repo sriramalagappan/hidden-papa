@@ -56,10 +56,10 @@ export const saveAvatar = (newAvatar) => {
 }
 
 // function to save avatar to device locally
-const saveAvatarToStorage = (avatar) => {
+const saveAvatarToStorage = async (avatar) => {
     // store avatar information
     try {
-        AsyncStorage.setItem(
+        await AsyncStorage.setItem(
             'hp-avatar',
             JSON.stringify({
                 avatar,

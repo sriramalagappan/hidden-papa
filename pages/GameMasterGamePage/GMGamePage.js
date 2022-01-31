@@ -318,11 +318,11 @@ const GMGamePage = (props) => {
                     <ModalComponent />
                 </Modal>
 
-                <View style={styles.settingsContainer}>
+                {/* <View style={styles.settingsContainer}>
                     <TouchableOpacity onPress={settingsModal}>
                         <Ionicons name={'settings'} size={40} color="black" />
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 <View style={styles.toggleWordContainer}>
                     <TouchableOpacity onPress={() => { setShowWord(!showWord) }}>
@@ -366,14 +366,14 @@ const GMGamePage = (props) => {
                     : (<View />)
                 }
                 <View pointerEvents="none">
-                <LottieView
-                    pointerEvents="none"
-                    ref={ani => { setAnimation(ani); }}
-                    style={styles.confetti}
-                    source={require(confettiAsset)}
-                    loop={false}
-                    autoPlay={false}
-                />
+                    <LottieView
+                        pointerEvents="none"
+                        ref={ani => { setAnimation(ani); }}
+                        style={styles.confetti}
+                        source={require(confettiAsset)}
+                        loop={false}
+                        autoPlay={false}
+                    />
                 </View>
             </Background>
         </View>

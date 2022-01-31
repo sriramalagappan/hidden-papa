@@ -97,10 +97,11 @@ export default StyleSheet.create({
         position: 'absolute',
         right: width * .01,
         top: height * .01,
+        zIndex: 99,
     },
     playersContainer: {
         alignItems: 'center',
-        marginTop: height * .05,
+        marginTop: height * .025,
     },
     buttonContainer: {
         width,
@@ -179,5 +180,21 @@ export default StyleSheet.create({
     },
     row: {
         flexDirection: 'row'
-    }
+    },
+    wordContainer: {
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    wordTextBold: {
+        fontFamily: 'bold',
+        fontSize: width * .06,
+        marginTop: height * .025,
+        textAlign: 'center',
+    },
+    wordTextLight: {
+        fontFamily: 'regular',
+        fontSize: width * .06,
+        marginTop: height * .025,
+        textAlign: 'center',
+    },
 });

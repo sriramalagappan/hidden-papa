@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Dimensions, ActivityIndicator, TouchableOpacity, Text, FlatList, Modal, Alert } from 'react-native';
+import { View, Dimensions, ActivityIndicator, TouchableOpacity, Text, FlatList, Modal, Alert, ScrollView } from 'react-native';
 import styles from './styles';
 import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button';
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import BigHead from '../../components/BigHead';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import colors from '../../theme/colors';
 import ServerLocations from '../../data/ServerLocations';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -22,6 +22,8 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 const LobbyPage = (props) => {
+
+    // #region Variables
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch();
@@ -48,6 +50,10 @@ const LobbyPage = (props) => {
     const [navigate, setNavigate] = useState(false);
     const [mergedWordPacks, setWordPacks] = useState(null);
 
+    // #endregion
+
+    // #region Listeners
+
     // Update Room State for listener function
     const updateRoomState = (data) => {
         if (data) {
@@ -61,6 +67,9 @@ const LobbyPage = (props) => {
             dispatch(roomActions.updateUsersData(data))
         }
     }
+    // #endregion
+
+    // #region UseEffects
 
     // componentDidMount
     useEffect(() => {
@@ -197,7 +206,7 @@ const LobbyPage = (props) => {
             newWordPack.push({ label: 'Custom Word Packs', value: 'custom', untouchable: true, textStyle: DropdownStyles.dropdownCategoryTitle });
             for (let i = 0; i < wordPacks.length; i++) {
                 const wordPack = wordPacks[i];
-                const wordPackObj = { label: wordPack, value: wordPack, parent: 'custom', textStyle: DropdownStyles.dropdownItemText}
+                const wordPackObj = { label: wordPack, value: wordPack, parent: 'custom', textStyle: DropdownStyles.dropdownItemText }
                 newWordPack.push(wordPackObj);
             }
         } else {
@@ -205,6 +214,10 @@ const LobbyPage = (props) => {
         }
         setWordPacks(newWordPack);
     }, [wordPacks]);
+
+    // #endregion
+
+    // #region Functions
 
     // determine if I'm host
     const isHost = () => {
@@ -288,6 +301,12 @@ const LobbyPage = (props) => {
         //else setModalType('gameSettingsView')
     }
 
+    // open modal for game rules
+    const openGameRulesModal = () => {
+        setModalType('gameRules');
+        setVisible(true);
+    }
+
     // start game by assigning roles to players
     const startGameHandler = async () => {
         setIsLoading2(true);
@@ -310,13 +329,19 @@ const LobbyPage = (props) => {
         }
     }
 
-    // --------------------------------------------------------------
+    // #endregion
+
+    // #region Local Components
 
     const renderPlayer = (itemData) => (
         <View key={itemData.item.username} style={styles.player}>
             <TouchableOpacity onPress={() => { openPlayerModel(itemData.item) }}>
                 {itemData.item.isReady ?
                     (<Ionicons style={styles.readyIcon} name={'checkmark-circle'} size={25} color={colors.green} />)
+                    : (<View />)
+                }
+                {itemData.item.isHost ?
+                    (<FontAwesome5 style={styles.readyIcon} name={'crown'} size={19} color={colors.yellow} />)
                     : (<View />)
                 }
                 <BigHead avatar={itemData.item.avatar} size={width * .23} />
@@ -463,6 +488,45 @@ const LobbyPage = (props) => {
                     );
                 }
             }
+
+            case 'gameRules': {
+                const PhaseOneText = "Players are separated into 3 roles: Game Master, Hidden Papa, and Guesser. " +
+                    "The Game Master is given 3 words and must select a word. The selected word is then revealed " +
+                    "to the Hidden Papa. Once everyone is ready, the next phase begins.";
+                const PhaseTwoText = "The Guessers and Hidden Papa are given an amount of time to ask the Game Master " +
+                    "yes-or-no questions regarding the word. If the word is " +
+                    "guessed in time, the next phase begins. Otherwise, everyone loses and the game ends.";
+                const PhaseThreeText = 'The time for the voting phase is same as the time it took to guess the word. ' +
+                    "Everyone, including the Game Master, can discuss on who they think the Hidden Papa is. Once they come " +
+                    "to a decision, they can click a player avatar and vote for that person. If the Hidden Papa receives the " +
+                    "majority of the votes, the Guessers and Game Master win. Otherwise, the Hidden Papa wins."
+
+                return (
+                    <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
+                        <TouchableOpacity style={styles.modal} activeOpacity={1}>
+                            <View style={styles.modalBodyGameRuleSettings}>
+                                <ScrollView>
+                                    <TouchableOpacity activeOpacity={1}>
+                                        <Text style={styles.modalPlayerText}>Game Rules</Text>
+                                        <View style={styles.marginLrg} />
+                                        <Text style={styles.smallTextBold}>Phase 1: Roles</Text>
+                                        <View style={styles.marginSml} />
+                                        <Text style={styles.smallTextLeft}>{PhaseOneText}</Text>
+                                        <View style={styles.marginLrg} />
+                                        <Text style={styles.smallTextBold}>Phase 2: Guessing</Text>
+                                        <View style={styles.marginSml} />
+                                        <Text style={styles.smallTextLeft}>{PhaseTwoText}</Text>
+                                        <View style={styles.marginLrg} />
+                                        <Text style={styles.smallTextBold}>Phase 3: Voting</Text>
+                                        <View style={styles.marginSml} />
+                                        <Text style={styles.smallTextLeft}>{PhaseThreeText}</Text>
+                                    </TouchableOpacity>
+                                </ScrollView>
+                            </View>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                );
+            }
             default: {
                 return (
                     <View />
@@ -504,7 +568,9 @@ const LobbyPage = (props) => {
         }
     }
 
-    // --------------------------------------------------------------
+    // #endregion
+
+    // #region UI
 
     if (isLoading) {
         return (
@@ -525,6 +591,7 @@ const LobbyPage = (props) => {
                         onRequestClose={closeHandler}
                         animationType={'fade'}
                         statusBarTranslucent={true}
+                        propagateSwipe={true}
                     >
                         <ModalComponent />
                     </Modal>
@@ -550,7 +617,7 @@ const LobbyPage = (props) => {
                         />
                     </View>
                     <View style={styles.sideContainer}>
-                        <TouchableOpacity style={styles.sideButton} disabled={true}>
+                        <TouchableOpacity style={styles.sideButton} onPress={openGameRulesModal}>
                             <Text style={styles.sideTitle}>Game Rules</Text>
                         </TouchableOpacity>
                     </View>
@@ -567,6 +634,8 @@ const LobbyPage = (props) => {
             </View>
         );
     }
+
+    // #endregion
 };
 
 export default LobbyPage;

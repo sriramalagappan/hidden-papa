@@ -74,8 +74,8 @@ const JoinRoomPage = (props) => {
             Alert.alert("Server Location Required", "Please choose a server location")
         } else {
             try {
-                await api.init(server);
-                await api.login(server);
+                await api.init();
+                await api.login();
 
                 await dispatch(roomActions.joinRoom(roomCodeInput, username))
             } catch (err) {

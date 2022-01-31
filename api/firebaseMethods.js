@@ -2,14 +2,20 @@ import firebase from "firebase";
 import { Alert } from "react-native";
 import firebaseConfigKorea from '../secrets/keysKR';
 import firebaseConfigNA from '../secrets/keysNA';
+import firebaseConfigEU from '../secrets/keysEU';
 import { defaultENWordCategories } from '../data/WordCategories';
 import { ENWords } from '../data/Words';
 import * as wordActions from '../store/actions/words';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const init = async (loc = "usa") => {
-    // don't init if already done
+export const init = async () => {
+    // don't init if already initialized
     if (firebase.apps.length === 0) {
-        switch (loc) {
+
+        // get selected server location
+        const server = await retrieveServer();
+
+        switch (server) {
             case "usa": {
                 firebase.initializeApp(firebaseConfigNA);
                 break;
@@ -18,6 +24,11 @@ export const init = async (loc = "usa") => {
                 firebase.initializeApp(firebaseConfigKorea);
                 break;
             }
+            case "eu": {
+                firebase.initializeApp(firebaseConfigEU);
+                break;
+            }
+            // default to NA
             default: {
                 firebase.initializeApp(firebaseConfigNA);
                 break;
@@ -31,15 +42,15 @@ export const login = async () => {
     // only login if necessary
     if (!firebase.auth().currentUser) {
         await firebase.auth().signInAnonymously().catch(function (error) {
-            // const errorCode = error.code;
             const errorMessage = error.message;
             Alert.alert("Sorry, something went wrong. Please try again", errorMessage);
         });
     }
 }
 
-export const createRoom = async (roomCode, username, avatar, server) => {
+export const createRoom = async (roomCode, username, avatar) => {
     try {
+        const server = await retrieveServer();
         const db = firebase.firestore();
         await db.collection("rooms")
             .doc(roomCode)
@@ -74,7 +85,7 @@ export const createRoom = async (roomCode, username, avatar, server) => {
     }
 }
 
-export const joinRoom = async (roomCode, username, avatar, server) => {
+export const joinRoom = async (roomCode, username, avatar) => {
     try {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
@@ -219,12 +230,15 @@ export const gameSetup = async (roomCode) => {
 
         const roles = createRoles(users.length);
 
+        const rolesShuffled = shuffle(roles);
+        const usersShuffled = shuffle(users);
+
         // simulate role selection liking picking cards from a deck
-        while (roles.length) {
+        while (rolesShuffled.length) {
             // select random role from list
-            const role = roles.pop();
+            const role = rolesShuffled.pop();
             // get next player
-            const username = users[roles.length];
+            const username = usersShuffled[roles.length];
             // assign role to player
             const userRef = roomRef.collection('users').doc(username);
             await userRef.set({ role, isReady: false, }, { merge: true });
@@ -258,7 +272,7 @@ export const gameSetup = async (roomCode) => {
             thirdWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         }
 
-        const wordChoices = [firstWord, secondWord, thirdWord]
+        const wordChoices = [firstWord, secondWord, thirdWord];
 
         // set words
         await roomRef.collection("game")
@@ -673,7 +687,7 @@ const createRoles = (len) => {
 }
 
 // Function to find majority element
-function findMajority(arr) {
+const findMajority = (arr) => {
     var count = 0, candidate = -1;
 
     // Finding majority candidate
@@ -698,5 +712,22 @@ function findMajority(arr) {
     if (count > (arr.length / 2))
         return candidate;
     return -1;
+}
 
+const retrieveServer = async () => {
+    // get selected server location
+    const data = await AsyncStorage.getItem('hp-server');
+    return (data != null) ? (JSON.parse(data)) : "usa";
+}
+
+/**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items An array containing the items.
+ */
+ function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
 }

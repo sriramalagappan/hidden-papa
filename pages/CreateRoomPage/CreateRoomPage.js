@@ -46,8 +46,6 @@ const CreateRoomPage = (props) => {
     const [isLoading, setIsLoading] = useState(false)
     const [nav, setNav] = useState(false);
 
-    const server = "usa";
-
     const updateUsername = (newUsername) => {
         setUsername(newUsername);
     };
@@ -57,14 +55,12 @@ const CreateRoomPage = (props) => {
         setIsLoading(true)
         if (!username) {
             Alert.alert("Username Required", "Please enter a username")
-        } else if (!server) {
-            Alert.alert("Server Location Required", "Please choose a server location")
         } else {
             try {
-                await api.init(server);
-                await api.login(server);
+                await api.init();
+                await api.login();
                 const roomCode = await generateUniqueRoomCode();
-                await dispatch(roomActions.createRoom(roomCode, username, server))
+                await dispatch(roomActions.createRoom(roomCode, username))
             } catch (err) {
                 setIsLoading(false)
                 Alert.alert("Sorry, something went wrong. Please try again", err.message);

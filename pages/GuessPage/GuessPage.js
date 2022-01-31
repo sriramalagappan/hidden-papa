@@ -328,11 +328,11 @@ const GuessPage = (props) => {
                 </Modal>
 
 
-                <View style={styles.settingsContainer}>
+                {/* <View style={styles.settingsContainer}>
                     <TouchableOpacity onPress={settingsModal}>
                         <Ionicons name={'settings'} size={40} color="black" />
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 <View style={styles.guessesIconContainer}>
                     <TouchableOpacity onPress={guessesModal}>
@@ -384,13 +384,16 @@ const GuessPage = (props) => {
                     : (<View />)
                 }
 
-                <LottieView
-                    ref={ani => { setAnimation(ani); }}
-                    style={styles.confetti}
-                    source={require(confettiAsset)}
-                    loop={false}
-                    autoPlay={false}
-                />
+                <View pointerEvents="none">
+                    <LottieView
+                        pointerEvents="none"
+                        ref={ani => { setAnimation(ani); }}
+                        style={styles.confetti}
+                        source={require(confettiAsset)}
+                        loop={false}
+                        autoPlay={false}
+                    />
+                </View>
             </Background>
         </View>
     );

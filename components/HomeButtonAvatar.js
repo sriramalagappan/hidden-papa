@@ -21,7 +21,7 @@ const HomeButton = (props) => {
                             (props.avatar) ?
                                 (
                                     <View style={styles.bigHeadContainer}>
-                                        <BigHeadComponent avatar={props.avatar} size={150} />
+                                        <BigHeadComponent avatar={props.avatar} size={140} />
                                     </View>
                                 )
                                 : (

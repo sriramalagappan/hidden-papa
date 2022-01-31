@@ -31,6 +31,7 @@ export default StyleSheet.create({
         width: '45%',
     },
     buttonContainer: {
-        alignItems: 'center'
+        justifyContent: 'center',
+        flexDirection: 'row',
     },
 })

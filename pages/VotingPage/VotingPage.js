@@ -180,7 +180,7 @@ const VotingPage = (props) => {
             // navigate to results page
             setNav(true);
             setIsLoading(true);
-            
+
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,
@@ -240,7 +240,7 @@ const VotingPage = (props) => {
         setInitLoad(true);
         setIsLoading(true);
         if (myPlayer.isHost) {
-            setTimeout(async function() {
+            setTimeout(async function () {
                 await generateResults();
             }, 2000); // pad 2 seconds
         }
@@ -369,19 +369,21 @@ const VotingPage = (props) => {
                         timeLabels={{ m: null, s: null }}
                     />
                 </View>
-                    
-                <View style={styles.bodyContainer}>
-                    <View style={styles.playersContainer}>
-                        <FlatList
-                            data={users}
-                            renderItem={renderPlayer}
-                            keyExtractor={(user, index) => index.toString()}
-                            numColumns={4}
-                            scrollEnabled={false}
-                        />
-                    </View>
-                </View >
-                    
+
+                <View style={styles.wordContainer}>
+                    <Text style={styles.wordTextLight}>{'Word: '}<Text style={styles.wordTextBold}>{word}</Text></Text>
+                </View>
+
+                <View style={styles.playersContainer}>
+                    <FlatList
+                        data={users}
+                        renderItem={renderPlayer}
+                        keyExtractor={(_, index) => index.toString()}
+                        numColumns={4}
+                        scrollEnabled={false}
+                    />
+                </View>
+
                 {(displayGuesses) ?
                     (<View style={styles.guessesListContainer}>
                         <FlatList

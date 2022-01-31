@@ -12,6 +12,8 @@ import { enWordCategories, defaultENWordCategories } from '../../data/WordCatego
 import DropDownPicker from 'react-native-dropdown-picker';
 import { ENWords } from '../../data/Words';
 import SmallButton from '../../components/SmallButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ServerLocations from '../../data/ServerLocations';
 
 import colors from '../../theme/colors'
 
@@ -36,7 +38,7 @@ const SettingsPage = (props) => {
     const allWords = useSelector(state => state.words.words);
     const wordPacks = useSelector(state => state.words.wordPacks);
 
-    const placeholderText = 'Please separate each word with a comma and no space (Ex: apple,banana)'
+    const placeholderText = 'Please separate each word with a comma (apple, banana) OR separate each word on a new line like: \napple\nbanana'
 
     // #endregion
 
@@ -90,12 +92,34 @@ const SettingsPage = (props) => {
         setVisible(true);
     }
 
+    const openServerHandler = () => {
+        setModalType('server');
+        setVisible(true);
+    }
+
     const closeHandler = () => {
         setVisible(false);
         setModalType('');
     }
 
-    //wordActions.removeWordsFromStorage();
+    const updateServer = async (server) => {
+        try {
+            await AsyncStorage.setItem(
+                'hp-server',
+                JSON.stringify(server)
+            );
+
+            Alert.alert(
+                "Server Changed",
+                "Please restart this app to connect to the new server",
+                [
+                    { text: "OK" }
+                ]
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
     // #endregion
 
@@ -108,6 +132,9 @@ const SettingsPage = (props) => {
             }
             case 'edit-wp': {
                 return EditWordPacksComponent();
+            }
+            case 'server': {
+                return ServerComponent();
             }
         }
     }
@@ -141,9 +168,17 @@ const SettingsPage = (props) => {
         }
 
         const addWordPack = async () => {
-            // parse words
-            //const parsedWords = words.replace(/\s/g, '');
-            const wordArr = words.split(',');
+            // parse words depending on whether the list is comma or new line delimitated
+            const delimChar = (words.indexOf("\n") !== -1) ? '\n' : ','
+            const wordArr = words.split(delimChar);
+            for (let i = 0; i < wordArr.length; i++) {
+                wordArr[i] = wordArr[i].trim(); // trim whitespace
+
+                // if word was blank, remove it from array
+                if (!wordArr[i]) {
+                    wordArr.splice(i, 1);
+                }
+            }
 
             // Min length of word pack is 3 words
             if (wordArr.length < 3) {
@@ -279,11 +314,13 @@ const SettingsPage = (props) => {
         const updateWordPackName = (input) => {
             setWordPackName(input.value);
             let filteredWords = mergedWords.filter(word => (input.value && word.category === input.value));
-            let filteredWordsArr = [];
+            let filteredWordsFormatted = "";
             for (let i = 0; i < filteredWords.length; i++) {
-                filteredWordsArr.push(filteredWords[i].text);
+                if (filteredWords[i].text) {
+                    filteredWordsFormatted += filteredWords[i].text + "\n";
+                }
             }
-            setWords(filteredWordsArr.toString());
+            setWords(filteredWordsFormatted);
         }
 
         const updateWordList = (input) => {
@@ -293,9 +330,17 @@ const SettingsPage = (props) => {
         }
 
         const editWordPack = async () => {
-            // parse words
-            //const parsedWords = words.replace(/\s/g, '');
-            const wordArr = words.split(',');
+            // parse words depending on whether the list is comma or new line delimitated
+            const delimChar = (words.indexOf("\n") !== -1) ? '\n' : ','
+            const wordArr = words.split(delimChar);
+            for (let i = 0; i < wordArr.length; i++) {
+                wordArr[i] = wordArr[i].trim(); // trim whitespace
+
+                // if word was blank, remove it from array
+                if (!wordArr[i]) {
+                    wordArr.splice(i, 1);
+                }
+            }
 
             // Min length of word pack is 3 words
             if (wordArr.length < 3) {
@@ -374,7 +419,6 @@ const SettingsPage = (props) => {
                 Keyboard.dismiss();
             }
             else {
-                setTmpWord({ wordPackName, words });
                 setVisible(false);
             }
         }
@@ -433,15 +477,41 @@ const SettingsPage = (props) => {
                                         <View style={styles.marginSml} />
                                         <Text style={styles.smallTextBold}>You cannot edit/delete default packs</Text>
                                     </View>
-                                ) : (<View />)}
-                                <View style={styles.row}>
-                                    <SmallButton onPress={deleteWordPack} disabled={isDefaultPack()}>Delete</SmallButton>
-                                    <SmallButton onPress={editWordPack} disabled={isDefaultPack()}>Save</SmallButton>
-                                </View>
+                                ) : (
+                                    <View style={styles.row}>
+                                        <SmallButton onPress={deleteWordPack} disabled={isDefaultPack()}>Delete</SmallButton>
+                                        <SmallButton onPress={editWordPack} disabled={isDefaultPack()}>Save</SmallButton>
+                                    </View>
+                                )}
                             </View>
                         ) : (
                             <View />
                         )}
+                    </View>
+                </TouchableOpacity>
+            </TouchableOpacity>
+        );
+    }
+
+    const ServerComponent = () => {
+        return (
+            <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={closeHandler}>
+                <TouchableOpacity style={styles.modal} activeOpacity={1} onPress={Keyboard.dismiss}>
+                    <View style={styles.modalBodyGameSettings}>
+                        <Text style={styles.boldText}>Change Servers</Text>
+                        <View style={styles.marginLrg} />
+                        <DropDownPicker
+                            items={ServerLocations}
+                            containerStyle={styles.dropdownStyle}
+                            style={styles.primaryDropdown}
+                            itemStyle={DropdownStyles.dropdownItem}
+                            dropDownStyle={DropdownStyles.dropdownItemContainer}
+                            onChangeItem={item => updateServer(item.value)}
+                            globalTextStyle={DropdownStyles.dropdownSelectedText}
+                            placeholder={"Select a server location"}
+                            dropDownMaxHeight={height * .3}
+                            activeLabelStyle={DropdownStyles.dropdownSelectedItem}
+                        />
                     </View>
                 </TouchableOpacity>
             </TouchableOpacity>
@@ -476,8 +546,11 @@ const SettingsPage = (props) => {
                     </Modal>
 
                     <View style={styles.row}>
-                        <HomeButtonSmall text={"Edit Word Packs"} icon={"create"} onPress={openEditHandler} iconComponent={"MaterialIcons"} />
                         <HomeButtonSmall text={"Add Word Packs"} icon={"add"} onPress={openAddHandler} iconComponent={"MaterialIcons"} />
+                        <HomeButtonSmall text={"Edit Word Packs"} icon={"create"} onPress={openEditHandler} iconComponent={"MaterialIcons"} />
+                    </View>
+                    <View style={styles.row}>
+                        <HomeButtonSmall text={"Change Server"} icon={"globe-outline"} onPress={openServerHandler} iconComponent={"Ionicons"} />
                     </View>
 
                 </Background>
