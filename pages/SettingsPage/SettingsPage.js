@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ImageBackground, ActivityIndicator, Modal, TextInput, TouchableOpacity, Text, Keyboard, Alert, Dimensions } from 'react-native';
+import { View, ActivityIndicator, Modal, TextInput, TouchableOpacity, Text, Keyboard, Alert, Dimensions } from 'react-native';
 import { DropdownStyles } from '../../theme/component-styles';
 import styles from './styles';
 import Background from '../../components/Background';
@@ -14,6 +14,8 @@ import { ENWords } from '../../data/Words';
 import SmallButton from '../../components/SmallButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ServerLocations from '../../data/ServerLocations';
+import LoadingComponent from '../../components/Loading';
+import { CommonActions } from '@react-navigation/native';
 
 import colors from '../../theme/colors'
 
@@ -119,6 +121,17 @@ const SettingsPage = (props) => {
         } catch (err) {
             console.log(err);
         }
+    }
+
+    const backButtonHandler = () => {
+        props.navigation.dispatch(
+            CommonActions.reset({
+                index: 1,
+                routes: [
+                    { name: 'Home' }
+                ]
+            })
+        );
     }
 
     // #endregion
@@ -290,7 +303,7 @@ const SettingsPage = (props) => {
                                 keyboardType={"default"}
                                 autoCapitalize={"none"}
                                 autoCorrect={false}
-                                maxLength={1000}
+                                maxLength={10000}
                                 multiline={true}
                                 textAlign={"left"}
                                 style={styles.textInput}
@@ -464,7 +477,7 @@ const SettingsPage = (props) => {
                                         keyboardType={"default"}
                                         autoCapitalize={"none"}
                                         autoCorrect={false}
-                                        maxLength={1000}
+                                        maxLength={10000}
                                         multiline={true}
                                         textAlign={"left"}
                                         style={styles.textInput}
@@ -524,11 +537,10 @@ const SettingsPage = (props) => {
 
     if (isLoading) {
         return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <ActivityIndicator color={"black"} size={100} />
-                </Background>
-            </View>
+            <LoadingComponent 
+                backButtonFunction={backButtonHandler}
+                text={"Please wait or press the back button to return to the home screen"}
+            />
         )
     } else {
         return (

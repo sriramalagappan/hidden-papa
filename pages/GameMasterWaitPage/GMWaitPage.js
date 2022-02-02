@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, TouchableOpacity, FlatList, Text } from 'react-native';
+import { View, TouchableOpacity, FlatList, Text } from 'react-native';
 import styles from './styles';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
 import Button from '../../components/Button';
 import Background from '../../components/Background';
+import LoadingComponent from '../../components/Loading';
 
 const GMWaitPage = (props) => {
 
@@ -140,6 +141,18 @@ const GMWaitPage = (props) => {
         setIsLoading2(false);
     }
 
+    const backButtonHandler = () => {
+        // navigate to lobby page
+        props.navigation.dispatch(
+            CommonActions.reset({
+                index: 1,
+                routes: [
+                    { name: 'Lobby' }
+                ]
+            })
+        );
+    }
+
     const renderWord = (itemData) => (
         <View key={itemData.item} style={styles.wordContainer}>
             <Button onPress={() => { selectWord(itemData.item) }} isLoading={isLoading2}>
@@ -150,12 +163,11 @@ const GMWaitPage = (props) => {
 
     if (isLoading) {
         return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <ActivityIndicator color={"black"} size={100} />
-                </Background>
-            </View>
-        )
+            <LoadingComponent
+                backButtonFunction={backButtonHandler}
+                text={"Please wait or press the back button to return to the lobby"}
+            />
+        );
     }
 
     if (!reveal) {

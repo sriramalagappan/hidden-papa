@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import { View, ActivityIndicator, Text, Dimensions, TouchableOpacity, Keyboard, Modal, FlatList, Alert } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity, Keyboard, Modal, FlatList, Alert } from 'react-native';
 import styles from './styles';
 import Background from '../../components/Background';
 import * as roomActions from '../../store/actions/room';
@@ -8,14 +8,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
 import CountDown from 'react-native-countdown-component';
 import Input from '../../components/Input';
-import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import LottieView from 'lottie-react-native';
+import LoadingComponent from '../../components/Loading';
 
 const width = Dimensions.get('window').width;
 
-const confettiAsset = '../../assets/confetti.json';
+const confettiAsset = '../../assets/animations/confetti.json';
 
 const GuessPage = (props) => {
 
@@ -231,6 +232,18 @@ const GuessPage = (props) => {
             closeHandler();
         }
     }
+    
+    const backButtonHandler = () => {
+        // navigate to lobby page
+        props.navigation.dispatch(
+            CommonActions.reset({
+                index: 1,
+                routes: [
+                    { name: 'Lobby' }
+                ]
+            })
+        );
+    }
 
     /**
     * handler when user touches outside of modal
@@ -295,12 +308,11 @@ const GuessPage = (props) => {
 
     if (isLoading) {
         return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <ActivityIndicator color={"black"} size={100} />
-                </Background>
-            </View>
-        )
+            <LoadingComponent
+                backButtonFunction={backButtonHandler}
+                text={"Please wait or press the back button to return to the lobby"}
+            />
+        );
     }
 
     if (startCounter && Math.floor(startCounter / 1000) > 0) {

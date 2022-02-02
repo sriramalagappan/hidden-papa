@@ -17,6 +17,7 @@ import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
 import Input from '../../components/Input';
 import * as wordActions from '../../store/actions/words';
+import LoadingComponent from '../../components/Loading';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -119,7 +120,7 @@ const LobbyPage = (props) => {
     }, [users])
 
     useEffect(() => {
-        // check if I have been assigned a role. If I have, route me to next screen
+        // check if I have been assigned a role. If I have, game started: route me to next screen
         if (me && users && users.length && !isLoading && !navigate) {
             for (let i = 0; i < users.length; ++i) {
                 const role = users[i].role
@@ -133,7 +134,7 @@ const LobbyPage = (props) => {
                                     { name: 'GMWait' }
                                 ]
                             })
-                        )
+                        );
                     } else if (role === 'hidden-papa') {
                         props.navigation.dispatch(
                             CommonActions.reset({
@@ -163,13 +164,16 @@ const LobbyPage = (props) => {
         if (msg && msg.type) {
             switch (msg.type) {
                 case 'roomClosed': {
-                    Alert.alert(
-                        "Lobby Closed",
-                        "This lobby is no longer active. Please create or join a new lobby",
-                        [
-                            { text: "OK", onPress: () => { routeHome() } }
-                        ]
-                    )
+                    // host does not need to see this msg
+                    if (!isHost) {
+                        Alert.alert(
+                            "Lobby Closed",
+                            "This lobby is no longer active. Please create or join a new lobby",
+                            [
+                                { text: "OK", onPress: () => { routeHome() } }
+                            ]
+                        );
+                    }
                 }
                 case 'kick': {
                     if (msg.to === me) {
@@ -574,12 +578,11 @@ const LobbyPage = (props) => {
 
     if (isLoading) {
         return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <ActivityIndicator color={"black"} size={100} />
-                </Background>
-            </View>
-        )
+            <LoadingComponent
+                backButtonFunction={routeHome}
+                text={"Please wait or press the back button to return to the home screen"}
+            />
+        );
     } else {
         return (
             <View style={styles.container}>

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Text, Dimensions, Alert } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 import styles from './styles';
 import Background from '../../components/Background';
 import * as roomActions from '../../store/actions/room';
 import * as api from '../../api/firebaseMethods';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '../../components/Button';
-import SmallButton from '../../components/SmallButton';
 import BigHead from '../../components/BigHead';
-import colors from '../../theme/colors';
 import { CommonActions } from '@react-navigation/native';
+import LoadingComponent from '../../components/Loading';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -127,7 +126,7 @@ const ResultsPage = (props) => {
                     { name: 'Lobby' }
                 ]
             })
-        )
+        );
     }
 
     // #endregion
@@ -163,12 +162,11 @@ const ResultsPage = (props) => {
 
     if (isLoading) {
         return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <ActivityIndicator color={"black"} size={100} />
-                </Background>
-            </View>
-        )
+            <LoadingComponent
+                backButtonFunction={buttonHandler}
+                text={"Please wait or press the back button to return to the lobby"}
+            />
+        );
     }
 
     return (

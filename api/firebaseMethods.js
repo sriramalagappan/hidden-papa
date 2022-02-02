@@ -33,7 +33,6 @@ export const init = async () => {
                 firebase.initializeApp(firebaseConfigNA);
                 break;
             }
-            //firebase.analytics();
         }
     }
 }
@@ -43,7 +42,8 @@ export const login = async () => {
     if (!firebase.auth().currentUser) {
         await firebase.auth().signInAnonymously().catch(function (error) {
             const errorMessage = error.message;
-            Alert.alert("Sorry, something went wrong. Please try again", errorMessage);
+            console.log('firebaseMethods.login:', errorMessage);
+            Alert.alert("Sorry, something went wrong when trying to login. Please try again");
         });
     }
 }
@@ -81,7 +81,8 @@ export const createRoom = async (roomCode, username, avatar) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        Alert.alert("Sorry, something went wrong. Please try again", errorMessage);
+        console.log('firebaseMethods.createRoom:', errorMessage);
+        Alert.alert("Sorry, something went wrong when creating the room. Please try again");
     }
 }
 
@@ -132,7 +133,8 @@ export const joinRoom = async (roomCode, username, avatar) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.joinRoom:', errorMessage);
+        Alert.alert("Sorry, something went wrong when joining the room. Please try again", errorMessage);
         throw err;
     }
 }
@@ -145,7 +147,7 @@ export const checkRoom = async (code) => {
         return (rooms.indexOf(code) === -1)
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.checkRoom:', errorMessage);
         throw err;
     }
 }
@@ -161,7 +163,7 @@ export const updateUser = async (roomCode, user, data) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.updateUser:', errorMessage);
         throw err;
     }
 }
@@ -175,7 +177,7 @@ export const sendMsg = async (roomCode, msg) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.sendMsg:', errorMessage);
         throw err;
     }
 }
@@ -192,7 +194,7 @@ export const kickPlayer = async (roomCode, user) => {
         await userRef.delete();
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.kickPlayer:', errorMessage);
         throw err;
     }
 }
@@ -206,7 +208,7 @@ export const removePlayer = async (roomCode, user) => {
         await userRef.delete();
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.removePlayer:', errorMessage);
         throw err;
     }
 }
@@ -215,7 +217,6 @@ export const gameSetup = async (roomCode) => {
     try {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
-
         await roomRef.collection('game').doc('results').delete(); // delete previous game results
 
         // set room state to game-started and update time
@@ -228,12 +229,19 @@ export const gameSetup = async (roomCode) => {
         const userSnapshot = await roomRef.collection("users").get();
         const users = userSnapshot.docs.map(doc => doc.id);
 
+        // generate roles
         const roles = createRoles(users.length);
 
+        // shuffle in case to ensure randomization
         const rolesShuffled = shuffle(roles);
         const usersShuffled = shuffle(users);
 
-        // simulate role selection liking picking cards from a deck
+        // ensure correct amount of roles were generated
+        if (rolesShuffled.length !== usersShuffled) {
+            throw "Error generating roles, please try again"
+        }
+
+        // assign roles to user
         while (rolesShuffled.length) {
             // select random role from list
             const role = rolesShuffled.pop();
@@ -244,6 +252,7 @@ export const gameSetup = async (roomCode) => {
             await userRef.set({ role, isReady: false, }, { merge: true });
         }
 
+        // get word catagories
         let categories = [];
 
         // Get categories
@@ -258,16 +267,18 @@ export const gameSetup = async (roomCode) => {
         const customWords = await wordActions.getWordsFromStorage();
         const mergedWords = (customWords) ? [...ENWords, ...customWords] : [...ENWords];
 
-        // get subset of words given categories
+        // get subset of words that match selected categories
         let filteredWords = mergedWords.filter(word => categories.indexOf(word.category) !== -1)
 
         // select three unique words randomly
         let firstWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         let secondWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
+        // ensure uniqueness
         while (secondWord === firstWord) {
             secondWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         }
         let thirdWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
+        // ensure uniqueness
         while (thirdWord === firstWord || thirdWord === secondWord) {
             thirdWord = filteredWords[Math.floor((Math.random() * filteredWords.length))].text;
         }
@@ -283,7 +294,7 @@ export const gameSetup = async (roomCode) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.gameSetup:', errorMessage);
         throw err;
     }
 }
@@ -298,7 +309,7 @@ export const updateCategories = async (roomCode, wordCategories) => {
         }, { merge: true });
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.updateCatagories:', errorMessage);
         throw err;
     }
 }
@@ -313,7 +324,7 @@ export const updateTimeLimit = async (roomCode, gameTimeLength) => {
         }, { merge: true });
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.updateTimeLimit:', errorMessage);
         throw err;
     }
 }
@@ -330,7 +341,7 @@ export const selectWord = async (roomCode, word) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.selectWord:', errorMessage);
         throw err;
     }
 }
@@ -339,6 +350,8 @@ export const logout = async () => {
     try {
         await firebase.auth().signOut();
     } catch (err) {
+        const errorMessage = err.message;
+        console.log('firebaseMethods.logout:', errorMessage);
         Alert.alert("Sorry, something went wrong. Please try again", err.message);
     }
 }
@@ -353,17 +366,6 @@ export const startGame = async (roomCode) => {
             roomState: 'guessing',
             latestActionTime: Date.now(),
         }, { merge: true });
-
-        // get users
-        const userSnapshot = await roomRef.collection("users").get();
-        const users = userSnapshot.docs.map(doc => doc.id);
-
-        // set player states back to not ready
-        // for (let i = 0; i < users.length; ++i) {
-        //     const username = users[i];
-        //     const userRef = roomRef.collection('users').doc(username);
-        //     await userRef.set({ isReady: false, }, { merge: true });
-        // }
 
         let gameTimeLength;
         await roomRef.get().then((doc) => {
@@ -384,7 +386,7 @@ export const startGame = async (roomCode) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.startGame:', errorMessage);
         throw err;
     }
 }
@@ -400,7 +402,7 @@ export const votingSetup = async (roomCode, user, guessStartTime) => {
             latestActionTime: Date.now(),
         }, { merge: true });
 
-        let voteTimeLength = Date.now() - guessStartTime
+        let voteTimeLength = Date.now() - guessStartTime;
 
         // set who guessed the word correctly and times
         await roomRef.collection("game")
@@ -413,7 +415,7 @@ export const votingSetup = async (roomCode, user, guessStartTime) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.votingSetup:', errorMessage);
         throw err;
     }
 }
@@ -423,7 +425,7 @@ export const generateResults = async (roomCode, word) => {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
 
-        // check if results are already being generated
+        // check if results are already being generated, then exit
         await roomRef.get().then((doc) => {
             if (doc.exists) {
                 const data = doc.data();
@@ -444,7 +446,7 @@ export const generateResults = async (roomCode, word) => {
 
         // check player votes
         let votes = [];
-        const noVote = '__________NO VOTE__________';
+        const noVote = '__________NO VOTE__________'; // impossible name to have
         let hiddenPapa = '';
 
         for (let i = 0; i < users.length; i++) {
@@ -456,9 +458,7 @@ export const generateResults = async (roomCode, word) => {
                     const data = doc.data();
 
                     // find hidden papa for next part
-                    if (data.role === 'hidden-papa') {
-                        hiddenPapa = data.username;
-                    }
+                    if (data.role === 'hidden-papa') hiddenPapa = data.username;
 
                     if (data.vote) {
                         votes.push(data.vote);
@@ -521,7 +521,7 @@ export const generateResults = async (roomCode, word) => {
         await roomRef.collection('game').doc('voting').delete();
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.generateResults:', errorMessage);
         throw err;
     }
 }
@@ -590,7 +590,7 @@ export const gameOver = async (roomCode, word) => {
 
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.gameOver:', errorMessage);
         throw err;
     }
 }
@@ -611,7 +611,7 @@ export const roomListener = async (roomCode, onChange) => {
         return listener
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.roomListener:', errorMessage);
         throw err;
     }
 }
@@ -641,7 +641,7 @@ export const usersListener = async (roomCode, onChange) => {
         return listener
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.usersListener:', errorMessage);
         throw err;
     }
 }
@@ -663,7 +663,7 @@ export const gameListener = async (roomCode, onChange) => {
         return listener
     } catch (err) {
         const errorMessage = err.message;
-        console.log(errorMessage);
+        console.log('firebaseMethods.gameListener:', errorMessage);
         throw err;
     }
 }
@@ -672,6 +672,11 @@ const insert = (array, index, elem) => {
     array.splice(index, 0, elem)
 }
 
+/**
+ * Create a list of roles of a given length
+ * @param {*} len length of array to return
+ * @returns {Array} array of roles
+ */
 const createRoles = (len) => {
     const result = [];
     for (let i = 0; i < len - 2; ++i) {
@@ -686,7 +691,11 @@ const createRoles = (len) => {
     return result;
 }
 
-// Function to find majority element
+/**
+ * Find the majority element in a list of votes
+ * @param {*} arr An array of elements
+ * @returns The majority element in the array, or -1 if no majority
+ */
 const findMajority = (arr) => {
     var count = 0, candidate = -1;
 
@@ -714,6 +723,10 @@ const findMajority = (arr) => {
     return -1;
 }
 
+/**
+ * retrieve user server location from local device
+ * @returns {String} server location
+ */
 const retrieveServer = async () => {
     // get selected server location
     const data = await AsyncStorage.getItem('hp-server');
@@ -723,8 +736,9 @@ const retrieveServer = async () => {
 /**
  * Shuffles array in place. ES6 version
  * @param {Array} a items An array containing the items.
+ * @return {Array} the shuffled array
  */
- function shuffle(a) {
+function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [a[i], a[j]] = [a[j], a[i]];

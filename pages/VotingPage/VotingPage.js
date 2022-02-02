@@ -12,12 +12,13 @@ import SmallButton from '../../components/SmallButton';
 import BigHead from '../../components/BigHead';
 import colors from '../../theme/colors';
 import { CommonActions } from '@react-navigation/native';
-
+import LoadingComponent from '../../components/Loading';
 
 const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height;
 
 const VotingPage = (props) => {
+
+    // #region Variables
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch()
@@ -52,6 +53,10 @@ const VotingPage = (props) => {
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
+    // #endregion
+
+    // #region Listeners
+
     // Update Room State for listener function
     const updateRoomState = (data) => {
         if (data) {
@@ -72,6 +77,10 @@ const VotingPage = (props) => {
             dispatch(roomActions.updateGameData(data));
         }
     }
+
+    // #endregion
+
+    // #region useEffects
 
     // get listener for room on mount (and only if roomCode is given)
     useEffect(() => {
@@ -192,6 +201,21 @@ const VotingPage = (props) => {
         }
     }, [resultsSettings])
 
+    // #endregion
+
+    // #region Functions
+
+    const backButtonHandler = () => {
+        // navigate to lobby page
+        props.navigation.dispatch(
+            CommonActions.reset({
+                index: 1,
+                routes: [
+                    { name: 'Lobby' }
+                ]
+            })
+        );
+    }
 
     const makeVote = async (player) => {
         if (myPlayer) {
@@ -253,6 +277,10 @@ const VotingPage = (props) => {
         }
     }
 
+    // #endregion
+
+    // #region Local Components
+
     const renderPlayer = (itemData) => (
         <View key={itemData.item.username} style={styles.player}>
             <TouchableOpacity onPress={() => { voteModal(itemData.item) }}>
@@ -311,14 +339,17 @@ const VotingPage = (props) => {
         }
     }
 
+    // #endregion
+
+    // #region UI
+
     if (isLoading) {
         return (
-            <View style={styles.container}>
-                <Background justify={true}>
-                    <ActivityIndicator color={"black"} size={100} />
-                </Background>
-            </View>
-        )
+            <LoadingComponent
+                backButtonFunction={backButtonHandler}
+                text={"Please wait or press the back button to return to the lobby"}
+            />
+        );
     }
 
     if (startCounter && Math.floor(startCounter / 1000) > 0) {
@@ -398,6 +429,8 @@ const VotingPage = (props) => {
             </Background>
         </View>
     );
+
+    // #endregion
 }
 
 export default VotingPage
