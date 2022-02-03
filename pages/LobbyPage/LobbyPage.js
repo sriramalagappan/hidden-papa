@@ -273,9 +273,14 @@ const LobbyPage = (props) => {
         )
     }
 
+    const loadingBackButton = () => {
+        props.navigation.navigate('Home');
+    }
+
     // route home and close room if host, or remove myself from room if player
     const routeHome = async () => {
         setVisible(false);
+        setIsLoading(true);
         if (isHost()) {
             await api.sendMsg(roomCode, { type: 'roomClosed', to: '' });
         } else {
@@ -579,7 +584,7 @@ const LobbyPage = (props) => {
     if (isLoading) {
         return (
             <LoadingComponent
-                backButtonFunction={routeHome}
+                backButtonFunction={loadingBackButton}
                 text={"Please wait or press the back button to return to the home screen"}
             />
         );

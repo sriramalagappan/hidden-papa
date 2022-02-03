@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import colors from '../theme/colors';
 import Background from './Background';
 import LottieView from 'lottie-react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 
 const loadingAsset = '../assets/animations/loading.json';
 
@@ -21,7 +20,7 @@ const LoadingComponent = (props) => {
             animation.reset();
             animation.play();
         }
-    }, [animation])
+    }, [animation]);
 
     // componentDidMount
     useEffect(() => {
@@ -93,8 +92,8 @@ const styles = StyleSheet.create({
     },
     back: {
         position: 'absolute',
-        top: height * .01,
-        left: width * .01,
+        top: height * .075,
+        left: width * .03,
     },
 })
 

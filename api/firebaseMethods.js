@@ -77,7 +77,8 @@ export const createRoom = async (roomCode, username, avatar) => {
                 gamesWonHP: 0,
                 gamesWonGuesser: 0,
                 guesses: [],
-            })
+                score: 0,
+            });
 
     } catch (err) {
         const errorMessage = err.message;
@@ -139,12 +140,17 @@ export const joinRoom = async (roomCode, username, avatar) => {
     }
 }
 
-export const checkRoom = async (code) => {
+/**
+ * See if given room code exists in list of rooms
+ * @param {*} roomCode room code to check
+ * @returns {Boolean} true if room exists, false otherwise
+ */
+export const checkRoom = async (roomCode) => {
     try {
         const db = firebase.firestore();
-        const snapshot = await db.collection("rooms").get()
-        const rooms = snapshot.docs.map(doc => doc.id)
-        return (rooms.indexOf(code) === -1)
+        const snapshot = await db.collection("rooms").get();
+        const rooms = snapshot.docs.map(doc => doc.id);
+        return (rooms.indexOf(roomCode) === -1);
     } catch (err) {
         const errorMessage = err.message;
         console.log('firebaseMethods.checkRoom:', errorMessage);
@@ -213,17 +219,17 @@ export const removePlayer = async (roomCode, user) => {
     }
 }
 
+/**
+ * Prepare room to start a new game
+ * @param {Number} roomCode room code
+ */
 export const gameSetup = async (roomCode) => {
     try {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
         await roomRef.collection('game').doc('results').delete(); // delete previous game results
 
-        // set room state to game-started and update time
-        await roomRef.set({
-            roomState: 'word-selection',
-            latestActionTime: Date.now(),
-        }, { merge: true });
+        await updateRoomState(roomCode, 'word-selection');
 
         // get users
         const userSnapshot = await roomRef.collection("users").get();
@@ -237,8 +243,9 @@ export const gameSetup = async (roomCode) => {
         const usersShuffled = shuffle(users);
 
         // ensure correct amount of roles were generated
-        if (rolesShuffled.length !== usersShuffled) {
-            throw "Error generating roles, please try again"
+        if (rolesShuffled.length !== usersShuffled.length) {
+            await updateRoomState(roomCode, 'lobby');
+            throw "Error generating roles, please try again";
         }
 
         // assign roles to user
@@ -299,6 +306,11 @@ export const gameSetup = async (roomCode) => {
     }
 }
 
+/**
+ * Update word categories property in room
+ * @param {Number} roomCode room code
+ * @param {Array} wordCategories new selected word categories
+ */
 export const updateCategories = async (roomCode, wordCategories) => {
     try {
         const db = firebase.firestore();
@@ -314,6 +326,11 @@ export const updateCategories = async (roomCode, wordCategories) => {
     }
 }
 
+/**
+ * Update game time length property in room
+ * @param {Number} roomCode room code
+ * @param {Number} gameTimeLength new game time length
+ */
 export const updateTimeLimit = async (roomCode, gameTimeLength) => {
     try {
         const db = firebase.firestore();
@@ -329,6 +346,11 @@ export const updateTimeLimit = async (roomCode, gameTimeLength) => {
     }
 }
 
+/**
+ * Set selected word for room/game
+ * @param {Number} roomCode room code of current game
+ * @param {String} word selected word
+ */
 export const selectWord = async (roomCode, word) => {
     try {
         const db = firebase.firestore();
@@ -346,6 +368,9 @@ export const selectWord = async (roomCode, word) => {
     }
 }
 
+/**
+ * Sign out of firebase auth
+ */
 export const logout = async () => {
     try {
         await firebase.auth().signOut();
@@ -356,16 +381,17 @@ export const logout = async () => {
     }
 }
 
+/**
+ * Start guessing phase by setting times
+ * @param {Number} roomCode room code of current game
+ */
 export const startGame = async (roomCode) => {
     try {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
 
         // set room state to guessing and update time
-        await roomRef.set({
-            roomState: 'guessing',
-            latestActionTime: Date.now(),
-        }, { merge: true });
+        await updateRoomState(roomCode, 'guessing');
 
         let gameTimeLength;
         await roomRef.get().then((doc) => {
@@ -379,8 +405,7 @@ export const startGame = async (roomCode) => {
         // set game end timestamp
         await roomRef.collection("game")
             .doc('settings').set({
-                // add 6 sec as padding for potential lag
-                startTime: Date.now() + 6000,
+                startTime: Date.now() + 6000,  // add 6 sec as padding for lag
                 endTime: Date.now() + gameTimeLength
             });
 
@@ -391,25 +416,29 @@ export const startGame = async (roomCode) => {
     }
 }
 
-export const votingSetup = async (roomCode, user, guessStartTime) => {
+/**
+ * Setup game for voting phase
+ * @param {Number} roomCode room code of current game
+ * @param {String} user username of user who guessed the word
+ * @param {Number} wordGuessedTime timestamp of time the guess phase started
+ */
+export const votingSetup = async (roomCode, user, gameStartTime) => {
     try {
         const db = firebase.firestore();
         const roomRef = db.collection('rooms').doc(roomCode);
 
-        // set room state to voting and update time
-        await roomRef.set({
-            roomState: 'voting',
-            latestActionTime: Date.now(),
-        }, { merge: true });
+        await updateRoomState(roomCode, 'voting');
 
-        let voteTimeLength = Date.now() - guessStartTime;
+        // get voting time length by subtracting now to when game began
+        let voteTimeLength = Date.now() - gameStartTime;
 
         // set who guessed the word correctly and times
         await roomRef.collection("game")
             .doc('voting').set({
                 wordGuessedBy: user,
-                startTime: Date.now(),
+                startTime: Date.now(), // start voting now
                 endTime: Date.now() + 10000 + voteTimeLength, // pad 10 seconds for lag
+                guessTime: voteTimeLength, // amount of time it took to guess word
             });
 
 
@@ -420,6 +449,11 @@ export const votingSetup = async (roomCode, user, guessStartTime) => {
     }
 }
 
+/**
+ * Voting Phase Over: Generate results for game
+ * @param {Number} roomCode room code of current game
+ * @param {String} word the word guessed
+ */
 export const generateResults = async (roomCode, word) => {
     try {
         const db = firebase.firestore();
@@ -432,7 +466,7 @@ export const generateResults = async (roomCode, word) => {
 
                 if (data.roomState === 'lobby') return;
             }
-        })
+        });
 
         // set room state to results and update time
         await roomRef.set({
@@ -469,15 +503,17 @@ export const generateResults = async (roomCode, word) => {
             });
         };
 
+        // get amount of time it took to guess word
+
+        // find majority vote and see if it was correct        
+        const gameWon = (findMajority(votes) === hiddenPapa) ? 1 : 0; // needs to be an integer
+
         let updateObject = {
             role: firebase.firestore.FieldValue.delete(),
             guesses: firebase.firestore.FieldValue.delete(),
             vote: firebase.firestore.FieldValue.delete(),
             isReady: false,
         };
-
-        // find majority vote and see if it was correct        
-        const gameWon = (findMajority(votes) === hiddenPapa) ? 1 : 0; // needs to be an integer
 
         // update player stats
         users.forEach(async (user) => {
@@ -493,15 +529,20 @@ export const generateResults = async (roomCode, word) => {
                         } : {
                             gamesPlayed: data.gamesPlayed + 1,
                             gamesWonHP: data.gamesWonHP + 1,
+                            score: data.score + 2,
                             ...updateObject
                         }
                     } else {
+                        // determine if this user voted correctly
+                        const votePoints = (data.vote === hiddenPapa) ? 1 : 0;
                         update = (gameWon) ? {
                             gamesPlayed: data.gamesPlayed + 1,
                             gamesWonGuesser: data.gamesWonGuesser + 1,
+                            score: data.score + votePoints + 1,
                             ...updateObject
                         } : {
                             gamesPlayed: data.gamesPlayed + 1,
+                            score: data.score + votePoints,
                             ...updateObject
                         }
                     }
@@ -526,7 +567,12 @@ export const generateResults = async (roomCode, word) => {
     }
 }
 
-// if word is not guessed in time, everyone losses
+/**
+ * Guessing Phase Over: No one guessed the word so everyone losses.
+ * Generate results for game
+ * @param {Number} roomCode room code of current game
+ * @param {String} word the word guessed
+ */
 export const gameOver = async (roomCode, word) => {
     try {
         const db = firebase.firestore();
@@ -595,8 +641,36 @@ export const gameOver = async (roomCode, word) => {
     }
 }
 
+/**
+ * Update room state property in database
+ * @param {Number} roomCode room code
+ * @param {String} roomState description of room state
+ */
+export const updateRoomState = async (roomCode, roomState) => {
+    try {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomCode);
+
+        // set room state and update time
+        await roomRef.set({
+            roomState: roomState,
+            latestActionTime: Date.now(),
+        }, { merge: true });
+    } catch (err) {
+        const errorMessage = err.message;
+        console.log('firebaseMethods.updateRoomState:', errorMessage);
+        throw err;
+    }
+}
+
 // ---------------------------------- LISTENERS ----------------------------------
 
+/**
+ * Listener for room
+ * @param {Number} roomCode room code of current game
+ * @param {Function} onChange Function to execute on data change
+ * @returns 
+ */
 export const roomListener = async (roomCode, onChange) => {
     try {
         const db = firebase.firestore();
@@ -616,6 +690,12 @@ export const roomListener = async (roomCode, onChange) => {
     }
 }
 
+/**
+ * Listener for collection of users in room
+ * @param {Number} roomCode room code of current game
+ * @param {Function} onChange Function to execute on data change
+ * @returns 
+ */
 export const usersListener = async (roomCode, onChange) => {
     try {
         const db = firebase.firestore();
@@ -646,6 +726,12 @@ export const usersListener = async (roomCode, onChange) => {
     }
 }
 
+/**
+ * Listener for game properties in room
+ * @param {Number} roomCode room code of current game
+ * @param {Function} onChange Function to execute on data change
+ * @returns 
+ */
 export const gameListener = async (roomCode, onChange) => {
     try {
         const db = firebase.firestore();
@@ -668,6 +754,12 @@ export const gameListener = async (roomCode, onChange) => {
     }
 }
 
+/**
+ * Insert function for JS array
+ * @param {Array} array array to insert element into
+ * @param {Number} index position in array to insert element into
+ * @param {*} elem element to insert
+ */
 const insert = (array, index, elem) => {
     array.splice(index, 0, elem)
 }
