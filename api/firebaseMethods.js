@@ -8,6 +8,9 @@ import { ENWords } from '../data/Words';
 import * as wordActions from '../store/actions/words';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+/**
+ * connect to firestore server using keys of selected server
+ */
 export const init = async () => {
     // don't init if already initialized
     if (firebase.apps.length === 0) {
@@ -37,6 +40,9 @@ export const init = async () => {
     }
 }
 
+/**
+ * authenticate to firestore server and login
+ */
 export const login = async () => {
     // only login if necessary
     if (!firebase.auth().currentUser) {
@@ -48,6 +54,12 @@ export const login = async () => {
     }
 }
 
+/**
+ * Create a new room document and add host user to it
+ * @param {Number} roomCode room id
+ * @param {String} username username of user to add
+ * @param {Object} avatar avatar object of user
+ */
 export const createRoom = async (roomCode, username, avatar) => {
     try {
         const server = await retrieveServer();
@@ -87,6 +99,12 @@ export const createRoom = async (roomCode, username, avatar) => {
     }
 }
 
+/**
+ * Insert a player object into a room
+ * @param {Number} roomCode room id
+ * @param {String} username username of user to add
+ * @param {Object} avatar avatar Object of user
+ */
 export const joinRoom = async (roomCode, username, avatar) => {
     try {
         const db = firebase.firestore();
@@ -130,6 +148,7 @@ export const joinRoom = async (roomCode, username, avatar) => {
                 gamesPlayed: 0,
                 gamesWonHP: 0,
                 gamesWonGuesser: 0,
+                score: 0,
             })
 
     } catch (err) {
@@ -142,7 +161,7 @@ export const joinRoom = async (roomCode, username, avatar) => {
 
 /**
  * See if given room code exists in list of rooms
- * @param {*} roomCode room code to check
+ * @param {Number} roomCode room id to check
  * @returns {Boolean} true if room exists, false otherwise
  */
 export const checkRoom = async (roomCode) => {
@@ -158,6 +177,12 @@ export const checkRoom = async (roomCode) => {
     }
 }
 
+/**
+ * Update user properties
+ * @param {Number} roomCode room id
+ * @param {String} user username of user to update
+ * @param {Object} data User Object
+ */
 export const updateUser = async (roomCode, user, data) => {
     try {
         const db = firebase.firestore();
@@ -174,6 +199,11 @@ export const updateUser = async (roomCode, user, data) => {
     }
 }
 
+/**
+ * Send message to room
+ * @param {Number} roomCode room id
+ * @param {Object} msg contents of message
+ */
 export const sendMsg = async (roomCode, msg) => {
     try {
         const db = firebase.firestore();
@@ -188,6 +218,11 @@ export const sendMsg = async (roomCode, msg) => {
     }
 }
 
+/**
+ * Send message to user that they are kicked and delete their instance
+ * @param {Number} roomCode room id
+ * @param {String} user username of user to kick
+ */
 export const kickPlayer = async (roomCode, user) => {
     try {
         const db = firebase.firestore();
@@ -205,6 +240,11 @@ export const kickPlayer = async (roomCode, user) => {
     }
 }
 
+/**
+ * Delete a player instance from a room
+ * @param {Number} roomCode room id
+ * @param {String} user username of user to remove (username is unique)
+ */
 export const removePlayer = async (roomCode, user) => {
     try {
         const db = firebase.firestore();
@@ -221,7 +261,7 @@ export const removePlayer = async (roomCode, user) => {
 
 /**
  * Prepare room to start a new game
- * @param {Number} roomCode room code
+ * @param {Number} roomCode room id
  */
 export const gameSetup = async (roomCode) => {
     try {
@@ -308,7 +348,7 @@ export const gameSetup = async (roomCode) => {
 
 /**
  * Update word categories property in room
- * @param {Number} roomCode room code
+ * @param {Number} roomCode room id
  * @param {Array} wordCategories new selected word categories
  */
 export const updateCategories = async (roomCode, wordCategories) => {
@@ -328,7 +368,7 @@ export const updateCategories = async (roomCode, wordCategories) => {
 
 /**
  * Update game time length property in room
- * @param {Number} roomCode room code
+ * @param {Number} roomCode room id
  * @param {Number} gameTimeLength new game time length
  */
 export const updateTimeLimit = async (roomCode, gameTimeLength) => {
@@ -348,7 +388,7 @@ export const updateTimeLimit = async (roomCode, gameTimeLength) => {
 
 /**
  * Set selected word for room/game
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {String} word selected word
  */
 export const selectWord = async (roomCode, word) => {
@@ -383,7 +423,7 @@ export const logout = async () => {
 
 /**
  * Start guessing phase by setting times
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  */
 export const startGame = async (roomCode) => {
     try {
@@ -418,7 +458,7 @@ export const startGame = async (roomCode) => {
 
 /**
  * Setup game for voting phase
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {String} user username of user who guessed the word
  * @param {Number} wordGuessedTime timestamp of time the guess phase started
  */
@@ -451,7 +491,7 @@ export const votingSetup = async (roomCode, user, gameStartTime) => {
 
 /**
  * Voting Phase Over: Generate results for game
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {String} word the word guessed
  */
 export const generateResults = async (roomCode, word) => {
@@ -570,7 +610,7 @@ export const generateResults = async (roomCode, word) => {
 /**
  * Guessing Phase Over: No one guessed the word so everyone losses.
  * Generate results for game
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {String} word the word guessed
  */
 export const gameOver = async (roomCode, word) => {
@@ -643,7 +683,7 @@ export const gameOver = async (roomCode, word) => {
 
 /**
  * Update room state property in database
- * @param {Number} roomCode room code
+ * @param {Number} roomCode room id
  * @param {String} roomState description of room state
  */
 export const updateRoomState = async (roomCode, roomState) => {
@@ -667,7 +707,7 @@ export const updateRoomState = async (roomCode, roomState) => {
 
 /**
  * Listener for room
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {Function} onChange Function to execute on data change
  * @returns 
  */
@@ -692,7 +732,7 @@ export const roomListener = async (roomCode, onChange) => {
 
 /**
  * Listener for collection of users in room
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {Function} onChange Function to execute on data change
  * @returns 
  */
@@ -728,7 +768,7 @@ export const usersListener = async (roomCode, onChange) => {
 
 /**
  * Listener for game properties in room
- * @param {Number} roomCode room code of current game
+ * @param {Number} roomCode room id of current game
  * @param {Function} onChange Function to execute on data change
  * @returns 
  */
