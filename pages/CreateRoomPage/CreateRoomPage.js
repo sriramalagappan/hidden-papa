@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Dimensions, Alert } from 'react-native';
+import { View, Dimensions, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import styles from './styles';
-import { ImageStyles, DropdownStyles } from '../../theme/component-styles';
+import { DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
 import { useDispatch, useSelector } from 'react-redux'
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -11,10 +11,15 @@ import ServerLocations from '../../data/ServerLocations';
 import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
 import * as api from '../../api/firebaseMethods';
+import LottieView from 'lottie-react-native';
 
 const height = Dimensions.get('window').height;
 
+const idleBottomLeftAsset = '../../assets/animations/idle_bottom_left.json'
+
 const CreateRoomPage = (props) => {
+
+    // #region Variables
 
     // store dispatch function in variable to use elsewhere
     const dispatch = useDispatch();
@@ -23,12 +28,22 @@ const CreateRoomPage = (props) => {
     // used to verify when to move to lobby
     const roomCode = useSelector(state => state.room.roomCode);
 
+    // Stateful Variables
+    const [username, setUsername] = useState('');
+    //const [server, setServer] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [nav, setNav] = useState(false);
+
+    // #endregion
+
+    // #region UseEffect
+
     useEffect(() => {
         // when room code is loaded, that means the user connected to the room
         if (roomCode && !nav) {
             setNav(true);
             setIsLoading(true);
-            
+
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,
@@ -40,11 +55,9 @@ const CreateRoomPage = (props) => {
         }
     }, [roomCode]);
 
-    // Stateful Variables
-    const [username, setUsername] = useState('');
-    //const [server, setServer] = useState('');
-    const [isLoading, setIsLoading] = useState(false)
-    const [nav, setNav] = useState(false);
+    // #endregion
+
+    // #region Functions
 
     const updateUsername = (newUsername) => {
         setUsername(newUsername);
@@ -95,9 +108,30 @@ const CreateRoomPage = (props) => {
         return code;
     }
 
+    // #endregion
+
+    // #region UI
+
     return (
         <View style={styles.container}>
             <Background justify={false}>
+                <View pointerEvents="none" style={{
+                    transform: [
+                        { scale: -1 },
+                    ]
+                }}>
+                    <LottieView
+                        pointerEvents="none"
+                        ref={() => { }}
+                        style={styles.idleTopRight}
+                        source={require(idleBottomLeftAsset)}
+                        loop={true}
+                        autoPlay={true}
+                    />
+                </View>
+                <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
+                    <View style={styles.keyboardDismiss} />
+                </TouchableWithoutFeedback>
                 <View style={styles.inputContainer}>
                     <Input
                         onChangeText={updateUsername}
@@ -109,7 +143,7 @@ const CreateRoomPage = (props) => {
                         maxLength={15}
                         multiline={false}
                         numberOfLines={1}
-                        textAlign={"left"}
+                        textAlign={"center"}
                     />
                 </View>
                 {/* <View style={styles.dropdownContainer}>
@@ -129,9 +163,22 @@ const CreateRoomPage = (props) => {
                 <View style={styles.buttonContainer}>
                     <Button onPress={createRoomHandler} isLoading={isLoading}>Create Room</Button>
                 </View>
+
+                <View pointerEvents="none">
+                    <LottieView
+                        pointerEvents="none"
+                        ref={() => { }}
+                        style={styles.idleBottomLeft}
+                        source={require(idleBottomLeftAsset)}
+                        loop={true}
+                        autoPlay={true}
+                    />
+                </View>
             </Background>
         </View>
     );
+
+    // #endregion
 };
 
 export default CreateRoomPage;

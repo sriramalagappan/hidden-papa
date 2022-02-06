@@ -9,10 +9,13 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: colors.primary,
     },
+    keyboardDismiss: {
+        width,
+        height: height * .3,
+    },
     inputContainer: {
         alignItems: 'center',
         width: '100%',
-        marginTop: height * .02,
     },
     dropdownContainer: {
         width: '100%',
@@ -31,6 +34,18 @@ export default StyleSheet.create({
     buttonContainer: {
         alignItems: 'center',
         width: '100%',
-        marginTop: height * .35,
+        marginTop: height * .025,
     },
+    idleBottomLeft: {
+        width: width * 1.25,
+        position: 'absolute',
+        left: -width * 0.275,
+        top: height * .05
+    },
+    idleTopRight: {
+        width: width * 1.25,
+        position: 'absolute',
+        right: -width * 0.275,
+        bottom: 0,
+    }
 })

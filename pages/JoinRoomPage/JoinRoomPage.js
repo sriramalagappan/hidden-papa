@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Dimensions, Alert, Text, Keyboard} from 'react-native';
+import { View, Dimensions, Alert, Text, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import styles from './styles';
 import { DropdownStyles } from '../../theme/component-styles';
 import Button from '../../components/Button'
@@ -11,8 +11,11 @@ import * as api from '../../api/firebaseMethods';
 import ServerLocations from '../../data/ServerLocations';
 import { CommonActions } from '@react-navigation/native';
 import Background from '../../components/Background';
+import LottieView from 'lottie-react-native';
 
 const height = Dimensions.get('window').height;
+
+const idleBottomLeftAsset = '../../assets/animations/idle_bottom_left.json'
 
 const JoinRoomPage = (props) => {
 
@@ -28,7 +31,7 @@ const JoinRoomPage = (props) => {
         if (roomCode && !nav) {
             setNav(true);
             setIsLoading(true);
-            
+
             props.navigation.dispatch(
                 CommonActions.reset({
                     index: 1,
@@ -89,6 +92,23 @@ const JoinRoomPage = (props) => {
     return (
         <View style={styles.container}>
             <Background justify={false}>
+                <View pointerEvents="none" style={{
+                    transform: [
+                        { scaleY: -1 },
+                    ]
+                }}>
+                    <LottieView
+                        pointerEvents="none"
+                        ref={() => { }}
+                        style={styles.idleTopLeft}
+                        source={require(idleBottomLeftAsset)}
+                        loop={true}
+                        autoPlay={true}
+                    />
+                </View>
+                <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
+                    <View style={styles.keyboardDismiss} />
+                </TouchableWithoutFeedback>
                 <View style={styles.roomCodeContainer}>
                     <Input
                         onChangeText={updateRoomCode}
@@ -100,7 +120,7 @@ const JoinRoomPage = (props) => {
                         maxLength={6}
                         multiline={false}
                         numberOfLines={1}
-                        textAlign={"left"}
+                        textAlign={"center"}
                     />
                 </View>
                 <View style={styles.inputContainer}>
@@ -114,7 +134,7 @@ const JoinRoomPage = (props) => {
                         maxLength={15}
                         multiline={false}
                         numberOfLines={1}
-                        textAlign={"left"}
+                        textAlign={"center"}
                     />
                 </View>
                 {/* <View style={styles.dropdownContainer}>
@@ -133,6 +153,20 @@ const JoinRoomPage = (props) => {
                 </View> */}
                 <View style={styles.buttonContainer}>
                     <Button onPress={joinRoomHandler} isLoading={isLoading}>Join Room</Button>
+                </View>
+                <View pointerEvents="none" style={{
+                    transform: [
+                        { scaleX: -1 },
+                    ]
+                }}>
+                    <LottieView
+                        pointerEvents="none"
+                        ref={() => { }}
+                        style={styles.idleBottomRight}
+                        source={require(idleBottomLeftAsset)}
+                        loop={true}
+                        autoPlay={true}
+                    />
                 </View>
             </Background>
         </View>

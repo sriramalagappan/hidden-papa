@@ -9,10 +9,13 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: colors.primary,
     },
+    keyboardDismiss: {
+        width,
+        height: height * .3,
+    },
     inputContainer: {
         alignItems: 'center',
         width: '100%',
-        marginTop: height * .02,
     },
     dropdownContainer: {
         width: '100%',
@@ -31,12 +34,12 @@ export default StyleSheet.create({
     buttonContainer: {
         alignItems: 'center',
         width: '100%',
-        marginTop: height * .35,
+        marginTop: height * .025,
     },
     roomCodeContainer: {
         alignItems: 'center',
         width: '100%',
-        marginTop: height * .04,
+        //marginTop: height * .04,
     },
     text: {
         color: '#282828',
@@ -47,5 +50,17 @@ export default StyleSheet.create({
         color: 'black',
         fontSize: 20,
         fontFamily: 'bold',
+    },
+    idleBottomRight: {
+        width: width * 1.25,
+        position: 'absolute',
+        left: -width * 0.275,
+        top: height * .01,
+    },
+    idleTopLeft: {
+        width: width * 1.25,
+        position: 'absolute',
+        right: -width * 0.275,
+        bottom: 0,
     }
 })
