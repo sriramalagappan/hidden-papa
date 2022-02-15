@@ -383,6 +383,8 @@ const LobbyPage = (props) => {
                                     <Text style={styles.modalMessage}>Games Won as Guesser: {modalData.gamesWonGuesser}</Text>
                                     <View style={styles.marginSml} />
                                     <Text style={styles.modalMessage}>Games Won as Hidden Papa: {modalData.gamesWonHP}</Text>
+                                    <View style={styles.marginSml} />
+                                    <Text style={styles.modalMessage}>Score: {modalData.score}</Text>
                                 </View>
                                 {KickButton}
                             </View>

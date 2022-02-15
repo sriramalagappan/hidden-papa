@@ -115,20 +115,6 @@ const CreateRoomPage = (props) => {
     return (
         <View style={styles.container}>
             <Background justify={false}>
-                <View pointerEvents="none" style={{
-                    transform: [
-                        { scale: -1 },
-                    ]
-                }}>
-                    <LottieView
-                        pointerEvents="none"
-                        ref={() => { }}
-                        style={styles.idleTopRight}
-                        source={require(idleBottomLeftAsset)}
-                        loop={true}
-                        autoPlay={true}
-                    />
-                </View>
                 <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
                     <View style={styles.keyboardDismiss} />
                 </TouchableWithoutFeedback>
@@ -162,17 +148,6 @@ const CreateRoomPage = (props) => {
                 </View> */}
                 <View style={styles.buttonContainer}>
                     <Button onPress={createRoomHandler} isLoading={isLoading}>Create Room</Button>
-                </View>
-
-                <View pointerEvents="none">
-                    <LottieView
-                        pointerEvents="none"
-                        ref={() => { }}
-                        style={styles.idleBottomLeft}
-                        source={require(idleBottomLeftAsset)}
-                        loop={true}
-                        autoPlay={true}
-                    />
                 </View>
             </Background>
         </View>
