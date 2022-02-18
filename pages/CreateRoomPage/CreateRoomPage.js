@@ -15,8 +15,6 @@ import LottieView from 'lottie-react-native';
 
 const height = Dimensions.get('window').height;
 
-const idleBottomLeftAsset = '../../assets/animations/idle_bottom_left.json'
-
 const CreateRoomPage = (props) => {
 
     // #region Variables
